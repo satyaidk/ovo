@@ -27,8 +27,8 @@ repository should be treated as published, even if it is deleted later.
 - Without `secrets.h` the firmware still builds. It fails to join Wi-Fi and
   opens its hotspot, where the real network can be entered from the web page
   (saved to NVS, not to source code).
-- The original sketches, including the one with the password, stay in the
-  git-ignored `legacy/` folder.
+- The original sketch that contained the password was removed after the
+  merge, so it never reaches the repository.
 
 ## Consequences
 

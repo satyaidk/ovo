@@ -17,19 +17,23 @@ You need:
 - Arduino IDE 2.x or `arduino-cli`, with the ESP32 core **3.3.12**
   (Boards Manager URL: `https://espressif.github.io/arduino-esp32/package_esp32_index.json`)
 - Libraries: Adafruit SSD1306 2.5.17, Adafruit GFX Library 1.12.6, ArduinoJson 7.4.3
-- Python 3.8+ (for `tools/`), with Pillow if you want to render GIFs
+- Python 3.8+ (for `tools/`)
 - A C++17 compiler for host tests (g++, clang, or Docker with the `gcc:14` image)
 
-Copy `secrets.example.h` to `secrets.h` and fill in your Wi-Fi details.
+In `firmware/MochiEyes/`, copy `secrets.example.h` to `secrets.h` and fill in
+your Wi-Fi details. Everything that is flashed lives in that folder.
 
 Compile from the command line exactly as CI does:
 
 ```sh
-arduino-cli compile --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs --warnings all .
+arduino-cli compile --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs --warnings all firmware/MochiEyes
 ```
 
-The folder must be called `MochiEyes` (Arduino requires the folder and the
-`.ino` to share a name).
+The sketch folder must stay called `MochiEyes` (Arduino requires the folder
+and the `.ino` to share a name).
+
+In the table below, paths starting with `src/` or `MochiEyes.ino` are inside
+`firmware/MochiEyes/`.
 
 ## Where to make a change
 
@@ -51,13 +55,14 @@ Run the host tests before every pull request:
 
 ```sh
 cd tests/host
-g++ -std=c++11 -Wall -Wextra -Werror -I../.. test_touch.cpp -o test_touch && ./test_touch
+g++ -std=c++11 -Wall -Wextra -Werror -I../../firmware/MochiEyes test_touch.cpp -o test_touch && ./test_touch
 ```
 
 To work on the web page without a device:
 
 ```sh
-g++ -std=c++17 -O2 -I. tools/preview/frames.cpp src/eye/EyeEngine.cpp src/eye/EyeRenderer.cpp -o build/frames
+F=firmware/MochiEyes
+g++ -std=c++17 -O2 -I$F tools/preview/frames.cpp $F/src/eye/EyeEngine.cpp $F/src/eye/EyeRenderer.cpp -o build/frames
 ./build/frames build/frames.bin 20 30
 python tools/preview/serve.py      # http://127.0.0.1:8000
 ```

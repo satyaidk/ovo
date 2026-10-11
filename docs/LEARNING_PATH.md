@@ -1,6 +1,7 @@
 # Learning path
 
-A guided route through the code for someone new to embedded C++. Each step
+A guided route through the code for someone new to embedded C++. Paths
+starting with `src/` or `MochiEyes.ino` are inside `firmware/MochiEyes/`. Each step
 names the files to read, what to look for, and a small exercise to make the
 idea stick. Plan for a weekend; steps 1 to 4 need no hardware.
 
@@ -30,15 +31,17 @@ The engine decides *what* the eyes do and outputs a `FaceState` in degrees
 and 0..1 amounts. The renderer turns that into pixels. Neither knows about
 Arduino, which is why both also compile on a PC.
 
-**Exercise:** build the frame generator and make a GIF:
+**Exercise:** build the frame generator and watch it in the page's live
+mirror:
 
 ```sh
-g++ -std=c++17 -O2 -I. tools/preview/frames.cpp src/eye/EyeEngine.cpp src/eye/EyeRenderer.cpp -o build/frames
+F=firmware/MochiEyes
+g++ -std=c++17 -O2 -I$F tools/preview/frames.cpp $F/src/eye/EyeEngine.cpp $F/src/eye/EyeRenderer.cpp -o build/frames
 ./build/frames build/frames.bin 20 30
-python tools/preview/make_gif.py build/frames.bin build/eyes.gif --seconds 10
+python tools/preview/serve.py      # http://127.0.0.1:8000
 ```
 
-Then change `mood` calls in `frames.cpp` and compare the GIFs.
+Then change the `setMood` calls in `frames.cpp`, rebuild, and compare.
 
 ## Step 3: A state machine you can test
 

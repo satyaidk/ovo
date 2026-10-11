@@ -1,12 +1,12 @@
 // frames.cpp - runs the real eye engine + renderer on a PC and writes raw
 // OLED frames (1024 bytes each, SSD1306 page layout) to a file.
 //
-// Used by tools/preview/serve.py (the web page's live mirror without a
-// device) and tools/preview/make_gif.py (the README animation). Because the
-// engine is Arduino-free C++, these are exactly the pixels the ESP32 draws.
+// Used by tools/preview/serve.py for the web page's live mirror without a
+// device. The engine is Arduino-free C++, so these are the pixels the ESP32 draws.
 //
 // Build from the repository root:
-//   g++ -std=c++17 -O2 -I. tools/preview/frames.cpp src/eye/EyeEngine.cpp src/eye/EyeRenderer.cpp -o build/frames
+//   F=firmware/MochiEyes
+//   g++ -std=c++17 -O2 -I$F tools/preview/frames.cpp $F/src/eye/EyeEngine.cpp $F/src/eye/EyeRenderer.cpp -o build/frames
 //   ./build/frames build/frames.bin 20 30      # 20 fps, 30 seconds
 #include <cstdio>
 #include <cstdlib>
@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
   if (!f) { perror(out); return 1; }
 
   // A scripted minute in Mochi's life, using the same engine calls the
-  // firmware's touch reactions make (see startReaction() in MochiEyes.ino).
+  // firmware's touch reactions make (see startReaction() in firmware/MochiEyes/MochiEyes.ino).
   for (int i = 0; i < fps * secs; ++i) {
     const uint32_t t = (uint32_t)((long long)i * 1000 / fps);
     const float s = (float)t / 1000.0f;

@@ -115,12 +115,14 @@ Details: [docs/DESIGN.md](docs/DESIGN.md).
 git clone https://github.com/satyaidk/MochiEyes.git
 ```
 
-The folder must stay named `MochiEyes`, matching `MochiEyes.ino`.
+Everything that is flashed lives in **`firmware/MochiEyes/`**. Open
+`firmware/MochiEyes/MochiEyes.ino` in the Arduino IDE; nothing outside that
+folder goes onto the board.
 
 ### Configure
 
-1. Copy `secrets.example.h` to `secrets.h` and set your 2.4 GHz Wi-Fi name and
-   password. `secrets.h` is git-ignored.
+1. In `firmware/MochiEyes/`, copy `secrets.example.h` to `secrets.h` and set
+   your 2.4 GHz Wi-Fi name and password. `secrets.h` is git-ignored.
 2. Optional, at the top of `MochiEyes.ino`: `TZ_STRING` (time zone),
    `OWNER_NAME` (greeting), `TOUCH_SIDE` (`-1` if the pad is on the left as
    you face the screen, `+1` if on the right).
@@ -143,7 +145,7 @@ Or from the command line:
 
 ```sh
 arduino-cli compile --upload -p COM5 \
-  --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs .
+  --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs firmware/MochiEyes
 ```
 
 On boot you hear one beep (alive), a second (OLED found) and a high beep
@@ -187,36 +189,36 @@ Full reference: [docs/API.md](docs/API.md).
 
 ```
 MochiEyes/
-├── MochiEyes.ino            # the application: hardware, modes, reactions, network, web API
-├── secrets.example.h        # credential template (copy to secrets.h)
-├── src/
-│   ├── eye/                 # eye engine: behaviour, geometry, renderer, text commands
-│   ├── touch/
-│   │   └── TouchGestures.h  # tap / hold / 5 s hold recognizer
-│   └── web/
-│       └── WebUi.h          # GENERATED: gzipped web/index.html
-├── web/
-│   └── index.html           # the controller page (edit this)
-├── tests/host/
-│   └── test_touch.cpp       # host unit tests for the gesture recognizer
+├── firmware/MochiEyes/          # everything that gets flashed: open MochiEyes.ino from here
+│   ├── MochiEyes.ino            # the application: hardware, modes, reactions, network, web API
+│   ├── secrets.h                # your Wi-Fi (git-ignored; create from secrets.example.h)
+│   ├── secrets.example.h        # credential template
+│   └── src/
+│       ├── eye/                 # eye engine: behaviour, geometry, renderer, text commands
+│       ├── touch/
+│       │   └── TouchGestures.h  # tap / hold / 5 s hold recognizer
+│       └── web/
+│           └── WebUi.h          # generated from web/index.html
+├── web/index.html               # source of the controller page (embedded, not flashed directly)
 ├── tools/
-│   ├── embed_web.py         # web/index.html -> src/web/WebUi.h (and --check)
-│   └── preview/
-│       ├── frames.cpp       # run the eye engine on a PC, write raw frames
-│       ├── make_gif.py      # frames -> animated GIF
-│       └── serve.py         # preview the page with a mock API
-├── docs/                    # design doc, API, hardware, learning path, ADRs, images
-└── .github/                 # CI workflow, issue and pull request templates
+│   ├── embed_web.py             # web/index.html -> firmware/.../WebUi.h (and --check)
+│   └── preview/                 # run the eye engine and the page on a PC
+├── tests/host/test_touch.cpp    # host unit tests for the gesture recognizer
+├── docs/                        # design doc, API, hardware, learning path, ADRs, images
+└── .github/                     # CI workflow, issue and pull request templates
 ```
+
+Only `firmware/MochiEyes/` goes onto the ESP32. Everything else is
+documentation, tests and development tools.
 
 ## Testing & quality
 
 | Check | How | Result |
 | ----- | --- | ------ |
 | Firmware compiles, all warnings on | `arduino-cli compile --clean --warnings all` (CI and local) | 0 warnings |
-| Touch gesture logic | `tests/host/test_touch.cpp`, `-Wall -Wextra -Werror` | 44 checks, 0 failures |
-| Coverage of `src/touch/TouchGestures.h` | gcov in CI | 100% of lines (40/40) |
-| Eye engine on a PC | `tools/preview/frames.cpp` builds and renders | 600 frames rendered for the demo GIF |
+| Touch gesture logic | `tests/host/test_touch.cpp`, `-Wall -Wextra -Werror` | 48 checks, 0 failures |
+| Coverage of `TouchGestures.h` | gcov in CI | 100% of lines (42/42) |
+| Eye engine on a PC | `tools/preview/frames.cpp` builds and renders | Enforced in CI |
 | Embedded page matches source | `python tools/embed_web.py --check` | Enforced in CI |
 | Builds without `secrets.h` | CI compiles from `secrets.example.h` only | Enforced in CI |
 
@@ -224,7 +226,7 @@ Run the host tests locally:
 
 ```sh
 cd tests/host
-g++ -std=c++11 -Wall -Wextra -Werror -I../.. test_touch.cpp -o test_touch && ./test_touch
+g++ -std=c++11 -Wall -Wextra -Werror -I../../firmware/MochiEyes test_touch.cpp -o test_touch && ./test_touch
 ```
 
 Coverage covers the touch module only. The rest of the firmware is verified
