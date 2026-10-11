@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  firmware:
+    name: Firmware (ESP32-C3)
+    runs-on: ubuntu-latest
+    env:
+      ESP32_INDEX: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+      # Same board options as the README: USB CDC on boot, 1.9 MB app partition.
+      FQBN: esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.arduino15
+            ~/Arduino/libraries
+          key: arduino-esp32-3.3.12-libs-v1
+
+      - uses: arduino/setup-arduino-cli@v2
+
+      - name: Install ESP32 core and libraries (pinned to the versions the docs measured)
+        run: |
+          arduino-cli core update-index --additional-urls "$ESP32_INDEX"
+          arduino-cli core install esp32:esp32@3.3.12 --additional-urls "$ESP32_INDEX"
+          arduino-cli lib install "Adafruit SSD1306@2.5.17" "Adafruit GFX Library@1.12.6" "ArduinoJson@7.4.3"
+
+      # arduino-cli requires the folder to be named after the .ino, whatever the
+      # repository is called. secrets.h is absent here, so this also proves the
+      # firmware builds from secrets.example.h alone.
+      - name: Compile
+        run: |
+          mkdir -p "$RUNNER_TEMP/MochiEyes"
+          cp -r MochiEyes.ino secrets.example.h src "$RUNNER_TEMP/MochiEyes/"
+          arduino-cli compile --fqbn "$FQBN" --warnings all "$RUNNER_TEMP/MochiEyes" 2>&1 | tee build.log
+          grep -E "Sketch uses|Global variables" build.log >> "$GITHUB_STEP_SUMMARY"
+
+  host-tests:
+    name: Host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Touch gesture tests (with coverage)
+        working-directory: tests/host
+        run: |
+          g++ -std=c++11 -O0 -Wall -Wextra -Werror --coverage -I../.. test_touch.cpp -o test_touch
+          ./test_touch
+          gcov test_touch-test_touch.gcda | grep -A1 "TouchGestures.h'" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Eye engine builds and renders on a PC
+        run: |
+          mkdir -p build
+          g++ -std=c++17 -O2 -Wall -Wextra -I. tools/preview/frames.cpp src/eye/EyeEngine.cpp src/eye/EyeRenderer.cpp -o build/frames
+          ./build/frames build/frames.bin 20 5
+          test "$(stat -c %s build/frames.bin)" -eq $((100 * 1024))
+
+  web:
+    name: Web page embedded
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: src/web/WebUi.h matches web/index.html
+        run: python tools/embed_web.py --check

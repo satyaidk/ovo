@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#e3ebee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12203a" media="(prefers-color-scheme: dark)">
+<title>Mochi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* Indigo-dyed cloth: light = first dip (kamenozoki), dark = many dips (kon).
+   Vermilion is the seal ink: selected states, the live signal, the gaze. */
+:root{
+  color-scheme:light dark;
+  --field:#e3ebee;--raised:#d4dfe4;--ink:#132139;--ink-2:#4a5a6f;
+  --stitch:rgba(19,33,57,.42);--line:rgba(19,33,57,.16);
+  --shu:#c13b27;--on-shu:#fff6ee;--pixel:226,243,255;
+  --mincho:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+  --gothic:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --field:#12203a;--raised:#1a2d4c;--ink:#ede6d4;--ink-2:#a8b2c3;
+  --stitch:rgba(237,230,212,.36);--line:rgba(237,230,212,.15);--shu:#dc4a33;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--field);color:var(--ink);font:400 16px/1.6 var(--gothic)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.08;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--shu);outline-offset:3px}
+
+/* ---- header: seal, name, time ---- */
+.top{display:flex;align-items:center;gap:.85rem;max-width:1040px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 16px 10px}
+.seal{flex:none;width:2.7rem;height:2.7rem;display:grid;place-items:center;border-radius:5px;transform:rotate(-3deg);
+  background:var(--shu);color:var(--on-shu);font:800 1.45rem/1 var(--mincho);
+  box-shadow:inset 0 0 0 3px var(--shu),inset 0 0 0 4.5px var(--on-shu)}
+h1{margin:0;font:800 1.6rem/1.05 var(--mincho);letter-spacing:.02em}
+.greet{margin:2px 0 0;color:var(--ink-2);font-size:.85rem}
+.now{margin-left:auto;display:flex;align-items:center;gap:.55rem;font:700 1.15rem/1 var(--mincho);font-variant-numeric:tabular-nums}
+.net{width:.6rem;height:.6rem;border-radius:50%;border:1.5px solid var(--ink-2)}
+.net.up{background:var(--ink);border-color:var(--ink)}
+.hem{width:calc(100% - 32px);max-width:1008px;height:33px;margin:0 auto;background:var(--stitch);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='33'%3E%3Cpath d='M0 0h8M16 0h8M32 0h8M48 0h8M64 0h8M80 0h8M96 0h8M112 0h8M8 8h8M24 8h8M40 8h8M56 8h8M72 8h8M88 8h8M104 8h8M120 8h8M8 16h8M24 16h8M40 16h8M56 16h8M72 16h8M88 16h8M104 16h8M120 16h8M0 24h8M16 24h8M32 24h8M48 24h8M64 24h8M80 24h8M96 24h8M112 24h8M0 32h8M16 32h8M32 32h8M48 32h8M64 32h8M80 32h8M96 32h8M112 32h8M0 8v8M0 24v8M8 0v8M8 16v8M16 0v8M16 16v8M24 8v8M24 24v8M32 8v8M32 24v8M40 0v8M40 16v8M48 8v8M48 24v8M56 0v8M56 16v8M64 0v8M64 16v8M72 8v8M72 24v8M80 0v8M80 16v8M88 8v8M88 24v8M96 8v8M96 24v8M104 0v8M104 16v8M112 8v8M112 24v8M120 0v8M120 16v8' stroke='%23000' stroke-width='1.6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") repeat-x 0 0/128px 33px;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='33'%3E%3Cpath d='M0 0h8M16 0h8M32 0h8M48 0h8M64 0h8M80 0h8M96 0h8M112 0h8M8 8h8M24 8h8M40 8h8M56 8h8M72 8h8M88 8h8M104 8h8M120 8h8M8 16h8M24 16h8M40 16h8M56 16h8M72 16h8M88 16h8M104 16h8M120 16h8M0 24h8M16 24h8M32 24h8M48 24h8M64 24h8M80 24h8M96 24h8M112 24h8M0 32h8M16 32h8M32 32h8M48 32h8M64 32h8M80 32h8M96 32h8M112 32h8M0 8v8M0 24v8M8 0v8M8 16v8M16 0v8M16 16v8M24 8v8M24 24v8M32 8v8M32 24v8M40 0v8M40 16v8M48 8v8M48 24v8M56 0v8M56 16v8M64 0v8M64 16v8M72 8v8M72 24v8M80 0v8M80 16v8M88 8v8M88 24v8M96 8v8M96 24v8M104 0v8M104 16v8M112 8v8M112 24v8M120 0v8M120 16v8' stroke='%23000' stroke-width='1.6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E") repeat-x 0 0/128px 33px}
+
+/* ---- layout ---- */
+.layout{max-width:1040px;margin:0 auto;padding:0 16px 72px;display:grid}
+@media (min-width:900px){
+  .layout{grid-template-columns:400px minmax(0,1fr);gap:64px;align-items:start}
+  .stage{position:sticky;top:12px}
+}
+
+/* ---- stage: the enso gaze pad around Mochi's live screen ---- */
+.stage{display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 0 28px}
+.enso{position:relative;width:min(86vw,380px);aspect-ratio:1;border-radius:50%;touch-action:none;cursor:crosshair;outline-offset:8px}
+.enso svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.enso .ink{fill:var(--ink)}
+.enso .dry{fill:none;stroke:var(--field);stroke-width:.9;stroke-dasharray:70 12 26 6 110 18;opacity:.8}
+.enso .reveal{fill:none;stroke:#fff;stroke-width:30;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;
+  animation:draw 1.4s cubic-bezier(.55,.05,.3,1) .15s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.screen{position:absolute;left:50%;top:50%;width:56%;transform:translate(-50%,-50%);padding:4.5%;
+  background:#000;border-radius:8px;box-shadow:0 0 0 1px var(--line),0 0 0 5px var(--field),0 0 0 6px var(--line)}
+.screen canvas{display:block;width:100%;aspect-ratio:2/1;image-rendering:pixelated;filter:drop-shadow(0 0 2px rgba(190,230,255,.55))}
+.screen p{position:absolute;inset:0;margin:0;display:none;place-items:center;color:#8f99aa;font-size:.8rem}
+.offline .screen p{display:grid}
+.offline .screen canvas{opacity:.25}
+.dot{position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;pointer-events:none;
+  background:var(--shu);box-shadow:0 0 0 3px var(--field);opacity:0;transition:transform .55s cubic-bezier(.2,.8,.2,1),opacity .45s}
+.enso.drag .dot{opacity:1;transition:none}
+.hint{max-width:31ch;margin:16px 0 20px;color:var(--ink-2);font-size:.9rem}
+.live{margin:20px 0 0;font:700 1.05rem/1.35 var(--mincho)}
+.live::before{content:"";display:inline-block;width:.45em;height:.45em;margin-right:.55em;border-radius:50%;background:var(--shu);vertical-align:.12em}
+.offline .live::before{background:transparent;box-shadow:inset 0 0 0 1.5px var(--shu)}
+
+/* ---- fusuma: sliding-door switch between the two faces ---- */
+.fusuma{position:relative;display:grid;grid-template-columns:1fr 1fr;width:min(100%,300px);padding:3px;border:1.5px solid var(--ink);border-radius:4px}
+.fusuma button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem .5rem;
+  border:0;border-radius:2px;background:none;cursor:pointer;font-weight:500;transition:color .35s}
+.fusuma b{font:800 1.2rem/1 var(--mincho)}
+.fusuma button[aria-checked=true]{color:var(--field)}
+.slide{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:2px;background:var(--ink);
+  transition:transform .5s cubic-bezier(.3,.7,.2,1)}
+.fusuma[data-on=clock] .slide{transform:translateX(100%)}
+.small{margin:9px 0 0;color:var(--ink-2);font-size:.8rem}
+
+/* ---- panels with a vertical kanji label in the margin ---- */
+.panel{position:relative;padding:28px 0 24px 3rem}
+.panel::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;border-radius:1px;
+  background:repeating-linear-gradient(90deg,var(--stitch) 0 10px,transparent 10px 16px)}
+.panel h2{margin:0;font:700 1.22rem/1.3 var(--mincho)}
+.kanji{position:absolute;left:0;top:26px;writing-mode:vertical-rl;font:800 1.45rem/1 var(--mincho);letter-spacing:.14em}
+.lede{max-width:46ch;margin:3px 0 18px;color:var(--ink-2);font-size:.9rem}
+
+/* ---- seals: inked = selected. Round = mood, square = face ---- */
+.seals{display:grid;grid-template-columns:repeat(auto-fill,minmax(4.5rem,1fr));gap:14px 6px}
+.seals button{display:flex;flex-direction:column;align-items:center;gap:.45rem;padding:4px 0;border:0;background:none;cursor:pointer;
+  font-size:.8rem;font-weight:500;line-height:1.2}
+.seals i{display:grid;place-items:center;width:3.3rem;height:3.3rem;border:1.5px solid var(--ink);border-radius:50%;
+  font:800 1.35rem/1 var(--mincho);font-style:normal;transition:background-color .2s,color .2s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+.seals.square i{border-radius:7px}
+.seals button[aria-pressed=true] i{transform:rotate(-7deg);border-color:var(--shu);color:var(--on-shu);
+  background:radial-gradient(circle at 28% 70%,rgba(255,255,255,.2) 0 1.5px,transparent 2.5px),
+    radial-gradient(circle at 74% 30%,rgba(255,255,255,.14) 0 1px,transparent 2px),var(--shu);
+  box-shadow:inset 0 0 0 3px var(--shu),inset 0 0 0 4.5px var(--on-shu)}
+.seals button:active i{transform:scale(.9)}
+
+/* ---- touch gestures: dots = taps, bar = hold ---- */
+.gestures{display:grid;gap:2px;margin:0;padding:0;list-style:none}
+.g{display:grid;grid-template-columns:4.4rem 1fr;align-items:center;column-gap:1rem;width:100%;padding:.65rem .35rem;
+  border:0;border-radius:6px;background:none;text-align:left;cursor:pointer}
+button.g:hover{background:var(--raised)}
+.taps{grid-row:span 2;display:flex;gap:5px}
+.taps span{width:9px;height:9px;border-radius:50%;background:var(--ink)}
+.taps .hold{width:30px;border-radius:5px}
+.taps .long{width:52px;border-radius:5px}
+.g strong{font-weight:500}
+.g em{color:var(--ink-2);font-size:.88rem;font-style:normal;line-height:1.35}
+li.g{cursor:default}
+
+/* ---- buttons, segmented choices, switches ---- */
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.btn{padding:.68rem 1.1rem;border:1.5px solid var(--ink);border-radius:999px;background:none;cursor:pointer;font-size:.92rem;font-weight:500;line-height:1;
+  transition:background-color .2s,color .2s}
+.btn:hover,.btn[aria-pressed=true],.btn.solid{background:var(--ink);color:var(--field)}
+.btn.solid:hover{background:none;color:var(--ink)}
+.seg{display:grid;grid-auto-columns:1fr;grid-auto-flow:column;border:1.5px solid var(--ink);border-radius:4px;overflow:hidden}
+.seg button{padding:.75rem .25rem;border:0;border-left:1px solid var(--line);background:none;cursor:pointer;font-size:.9rem;font-weight:500}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--field)}
+.data{display:grid;grid-template-columns:max-content 1fr;gap:.45rem 1.25rem;margin:20px 0 0;font-variant-numeric:tabular-nums}
+.data dt,.status dt{color:var(--ink-2)}
+.data dd,.status dd{margin:0}
+label{display:block;margin:16px 0 6px;color:var(--ink-2);font-size:.85rem}
+input[type=text],input[type=password]{width:100%;padding:.45rem 0;border:0;border-bottom:1.5px solid var(--stitch);border-radius:0;background:none;font-size:1rem}
+textarea{display:block;width:100%;max-width:34ch;min-height:10rem;padding:.6rem .7rem;border:1.5px solid var(--stitch);border-radius:4px;background:none;
+  resize:vertical;font:400 .95rem/1.5 ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+input:focus,textarea:focus{outline:none;border-color:var(--ink)}
+.count{margin:6px 0 0;color:var(--ink-2);font-size:.8rem}
+.switch{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0;padding:.7rem 0;color:var(--ink);font-size:1rem;cursor:pointer}
+.switch small{display:block;color:var(--ink-2);font-size:.84rem;line-height:1.4}
+.switch input{position:relative;flex:none;width:2.9rem;height:1.6rem;margin:0;border:1.5px solid var(--ink);border-radius:999px;appearance:none;-webkit-appearance:none;cursor:pointer;transition:background-color .2s}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:1.1rem;height:1.1rem;border-radius:50%;background:var(--ink);transition:transform .25s,background-color .2s}
+.switch input:checked{background:var(--ink)}
+.switch input:checked::after{background:var(--field);transform:translateX(1.3rem)}
+.sub{margin:26px 0 0;font:700 1.02rem/1.3 var(--mincho)}
+.status{display:grid;grid-template-columns:max-content 1fr;gap:.45rem 1.25rem;margin:0;font-size:.92rem;font-variant-numeric:tabular-nums}
+
+/* ---- toast: a small seal stamped on each confirmation ---- */
+.toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));z-index:5;display:flex;align-items:center;gap:.65rem;max-width:calc(100% - 32px);
+  padding:.7rem 1.1rem .7rem .85rem;border-radius:6px;background:var(--ink);color:var(--field);font-size:.92rem;
+  transform:translate(-50%,180%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.toast::before{content:"";flex:none;width:.85rem;height:.85rem;border-radius:2px;background:var(--shu);transform:rotate(-7deg)}
+.toast.bad::before{background:none;box-shadow:inset 0 0 0 2px var(--shu)}
+.toast.show{transform:translate(-50%,0)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+@media (prefers-reduced-motion:reduce){
+  .enso .reveal{animation:none;stroke-dashoffset:0}
+  *{transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="seal" lang="ja" aria-hidden="true">餅</div>
+  <div>
+    <h1>Mochi</h1>
+    <p class="greet" id="greet">Hello</p>
+  </div>
+  <p class="now" aria-label="Time on Mochi"><span id="hhmm">--:--</span><span class="net" id="net" title="Wi-Fi"></span></p>
+</header>
+<div class="hem" aria-hidden="true"></div>
+
+<main class="layout">
+  <section class="stage" aria-label="Mochi's screen">
+    <div class="enso" id="pad" tabindex="0" role="application"
+         aria-label="Gaze pad. Drag, or use the arrow keys, to choose where Mochi looks. Escape lets it look around on its own.">
+      <svg viewBox="0 0 300 300" aria-hidden="true">
+        <defs>
+          <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="3" seed="4"/>
+            <feDisplacementMap in="SourceGraphic" scale="4.5"/>
+          </filter>
+          <mask id="brush" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="300">
+            <path class="reveal" pathLength="1" d="M245.0 90.6 L250.7 99.5 L256.3 108.6 L261.6 118.2 L265.8 128.5 L268.7 139.3 L269.8 150.4 L269.0 161.6 L266.7 172.5 L263.2 183.1 L259.1 193.3 L254.4 203.3 L249.1 212.9 L243.0 222.1 L235.8 230.4 L227.5 237.6 L218.2 243.5 L208.4 248.0 L198.3 251.6 L188.2 254.7 L178.2 257.6 L168.1 260.4 L157.8 263.0 L147.1 264.8 L136.2 265.4 L125.3 264.4 L114.7 261.9 L104.4 258.0 L94.6 253.1 L85.1 247.5 L76.0 241.4 L67.1 234.7 L58.9 227.2 L51.6 218.6 L45.8 209.0 L41.7 198.6 L39.2 187.7 L38.0 176.7 L37.7 165.9 L37.7 155.3 L37.9 144.8 L38.4 134.2 L39.5 123.7 L41.7 113.2 L45.3 103.1 L50.2 93.5 L56.1 84.6 L62.7 76.2 L69.8 68.1 L77.2 60.3 L85.1 52.6 L93.7 45.5 L103.2 39.4 L113.6 34.9 L124.5 32.2 L135.8 31.3 L147.0 32.0 L157.9 33.8 L168.6 36.2 L179.0 39.0 L189.2 42.2 L189.2 42.2"/>
+          </mask>
+        </defs>
+        <g mask="url(#brush)" filter="url(#rough)">
+          <path class="ink" d="M246.3 89.8 L250.4 93.6 L254.4 97.6 L258.5 101.8 L262.5 106.2 L266.3 110.9 L269.8 115.9 L273.1 121.1 L275.2 126.7 L276.6 132.5 L277.6 138.5 L278.0 144.4 L278.0 150.4 L277.6 156.4 L276.7 162.3 L275.5 168.2 L274.0 174.0 L272.3 179.6 L270.5 185.2 L268.5 190.8 L266.4 196.2 L264.1 201.7 L261.8 207.0 L259.2 212.3 L256.4 217.5 L253.4 222.6 L250.0 227.5 L246.3 232.1 L242.2 236.4 L237.8 240.4 L233.1 244.0 L228.1 247.1 L222.9 249.9 L217.6 252.3 L212.2 254.4 L206.7 256.3 L201.3 258.0 L195.9 259.6 L190.5 261.1 L185.2 262.7 L179.9 264.3 L174.6 265.9 L169.2 267.4 L163.8 269.0 L158.3 270.4 L152.7 271.6 L146.9 272.5 L141.1 273.0 L135.3 273.2 L129.5 272.8 L123.7 272.0 L118.0 270.7 L112.4 268.9 L107.0 266.8 L101.7 264.4 L96.5 261.7 L91.5 258.8 L86.5 255.8 L81.7 252.7 L76.9 249.5 L72.1 246.1 L67.5 242.7 L62.9 239.1 L58.4 235.3 L54.1 231.2 L50.1 226.9 L46.3 222.3 L43.0 217.4 L40.1 212.3 L37.6 206.9 L35.7 201.3 L34.2 195.6 L33.1 189.8 L32.4 184.0 L32.0 178.2 L31.8 172.4 L31.9 166.7 L32.0 161.1 L32.1 155.6 L32.4 150.0 L32.6 144.5 L32.9 139.0 L33.3 133.5 L33.8 128.0 L34.6 122.5 L35.6 117.0 L36.9 111.6 L38.5 106.2 L40.6 101.0 L42.9 95.9 L45.6 91.0 L48.6 86.2 L51.9 81.6 L55.3 77.2 L58.9 73.0 L62.7 68.8 L66.5 64.7 L70.4 60.7 L74.4 56.8 L78.5 52.9 L82.8 49.1 L87.2 45.5 L91.8 42.0 L96.7 38.8 L101.7 35.9 L107.0 33.4 L112.4 31.3 L118.0 29.8 L123.8 28.7 L129.6 28.1 L135.4 27.9 L141.2 28.2 L146.9 28.8 L152.6 29.7 L158.1 30.8 L163.6 32.1 L169.0 33.5 L174.3 35.1 L179.6 36.8 L184.7 38.6 L189.7 40.8 L188.7 43.6 L183.5 42.5 L178.4 41.2 L173.3 40.0 L168.1 38.9 L163.0 37.8 L157.7 36.8 L152.4 36.0 L147.1 35.3 L141.6 34.9 L136.2 34.7 L130.7 35.0 L125.3 35.7 L119.9 36.8 L114.7 38.4 L109.6 40.5 L104.7 43.0 L100.1 45.8 L95.6 49.0 L91.4 52.5 L87.5 56.1 L83.7 59.9 L80.0 63.7 L76.5 67.6 L73.1 71.5 L69.8 75.4 L66.5 79.4 L63.3 83.4 L60.3 87.5 L57.4 91.7 L54.7 96.1 L52.2 100.6 L50.0 105.2 L48.2 110.0 L46.6 114.9 L45.4 119.8 L44.5 124.9 L43.9 129.9 L43.5 135.0 L43.2 140.0 L43.1 145.0 L43.1 150.0 L43.2 155.0 L43.3 160.1 L43.5 165.1 L43.7 170.2 L44.0 175.3 L44.6 180.5 L45.3 185.6 L46.3 190.8 L47.7 195.9 L49.4 200.9 L51.5 205.8 L54.0 210.5 L56.9 215.0 L60.1 219.2 L63.6 223.2 L67.4 226.9 L71.4 230.4 L75.5 233.6 L79.8 236.7 L84.2 239.6 L88.6 242.3 L93.1 244.9 L97.7 247.3 L102.4 249.5 L107.1 251.5 L112.0 253.3 L116.9 254.8 L121.9 256.0 L126.9 256.9 L132.0 257.5 L137.2 257.7 L142.3 257.6 L147.3 257.1 L152.3 256.5 L157.3 255.6 L162.1 254.6 L166.9 253.4 L171.7 252.2 L176.4 251.0 L181.1 249.7 L185.8 248.3 L190.5 246.8 L195.2 245.3 L199.9 243.6 L204.5 241.6 L209.1 239.5 L213.5 237.0 L217.8 234.3 L221.9 231.2 L225.8 227.9 L229.4 224.4 L232.8 220.6 L236.0 216.6 L239.0 212.5 L241.8 208.3 L244.5 203.9 L247.1 199.5 L249.5 195.0 L251.8 190.5 L254.0 185.8 L256.0 181.0 L257.8 176.1 L259.3 171.1 L260.5 166.0 L261.3 160.8 L261.6 155.6 L261.5 150.4 L260.9 145.2 L259.8 140.1 L258.4 135.1 L256.5 130.2 L254.6 125.4 L253.3 120.6 L251.8 115.8 L250.2 111.0 L248.6 106.2 L247.0 101.3 L245.4 96.4 L243.7 91.4Z"/>
+          <path class="dry" d="M270.9 161.8 L266.9 178.3 L260.9 194.0 L253.5 209.1 L244.5 223.2 L233.1 235.5 L219.4 245.0 L204.2 251.6 L188.8 256.5 L173.5 260.9 L157.9 264.9 L141.6 267.2 L124.9 266.3 L108.8 261.8 L93.7 254.7 L79.4 246.1 L65.8 236.1 L53.6 224.2 L44.1 210.0 L38.5 193.9 L36.2 177.2"/>
+          <path class="dry" d="M197.2 249.5 L182.5 253.9 L167.7 258.1 L152.4 261.6 L136.5 263.0 L120.6 261.0 L105.3 255.7 L91.1 248.3 L77.5 239.6 L64.6 229.5 L53.6 217.3 L45.7 202.8 L41.5 186.9 L40.1 170.9 L40.1 155.2 L40.5 139.7 L41.9 124.2"/>
+        </g>
+      </svg>
+      <div class="screen"><canvas id="oled" width="128" height="64" aria-label="Live copy of Mochi's screen" role="img"></canvas><p>Not connected</p></div>
+      <span class="dot" id="dot"></span>
+    </div>
+    <p class="hint">Drag inside the circle to choose where Mochi looks. Let go and Mochi looks around on its own.</p>
+    <div class="fusuma" id="fusuma" role="radiogroup" aria-label="What the screen shows" data-on="eyes">
+      <span class="slide" aria-hidden="true"></span>
+      <button type="button" role="radio" data-mode="eyes" aria-checked="true"><b lang="ja" aria-hidden="true">目</b>Eyes</button>
+      <button type="button" role="radio" data-mode="clock" aria-checked="false"><b lang="ja" aria-hidden="true">時</b>Clock</button>
+    </div>
+    <p class="small">Or hold the touch pad for 5 seconds.</p>
+    <p class="live" id="live" aria-live="polite">Connecting to Mochi</p>
+  </section>
+
+  <div>
+    <section class="panel" aria-labelledby="h-mood">
+      <h2 id="h-mood"><span class="kanji" lang="ja" aria-hidden="true">気分</span>Mood</h2>
+      <p class="lede">How Mochi behaves when left alone.</p>
+      <div class="seals" data-group="mood">
+        <button type="button" data-v="calm" aria-pressed="false"><i lang="ja" aria-hidden="true">静</i>Calm</button>
+        <button type="button" data-v="listening" aria-pressed="false"><i lang="ja" aria-hidden="true">聴</i>Listening</button>
+        <button type="button" data-v="talking" aria-pressed="false"><i lang="ja" aria-hidden="true">話</i>Talking</button>
+        <button type="button" data-v="curious" aria-pressed="false"><i lang="ja" aria-hidden="true">奇</i>Curious</button>
+        <button type="button" data-v="focused" aria-pressed="false"><i lang="ja" aria-hidden="true">集</i>Focused</button>
+        <button type="button" data-v="sleepy" aria-pressed="false"><i lang="ja" aria-hidden="true">眠</i>Sleepy</button>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-face">
+      <h2 id="h-face"><span class="kanji" lang="ja" aria-hidden="true">表情</span>Face</h2>
+      <p class="lede">The shape of the eyelids, kept until you pick another.</p>
+      <div class="seals square" data-group="expr">
+        <button type="button" data-v="neutral" aria-pressed="false"><i lang="ja" aria-hidden="true">平</i>Neutral</button>
+        <button type="button" data-v="happy" aria-pressed="false"><i lang="ja" aria-hidden="true">喜</i>Happy</button>
+        <button type="button" data-v="sad" aria-pressed="false"><i lang="ja" aria-hidden="true">哀</i>Sad</button>
+        <button type="button" data-v="angry" aria-pressed="false"><i lang="ja" aria-hidden="true">怒</i>Angry</button>
+        <button type="button" data-v="surprised" aria-pressed="false"><i lang="ja" aria-hidden="true">驚</i>Surprised</button>
+        <button type="button" data-v="sleepy" aria-pressed="false"><i lang="ja" aria-hidden="true">睡</i>Sleepy</button>
+        <button type="button" data-v="suspicious" aria-pressed="false"><i lang="ja" aria-hidden="true">疑</i>Suspicious</button>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-touch">
+      <h2 id="h-touch"><span class="kanji" lang="ja" aria-hidden="true">合図</span>Touch</h2>
+      <p class="lede">What the touch pad does. Try each one from here. Any tap wakes Mochi up.</p>
+      <ul class="gestures">
+        <li><button type="button" class="g" data-g="1"><span class="taps" aria-hidden="true"><span></span></span><strong>Tap once</strong><em>Looks toward the pad</em></button></li>
+        <li><button type="button" class="g" data-g="2"><span class="taps" aria-hidden="true"><span></span><span></span></span><strong>Tap twice</strong><em>Smiles at you</em></button></li>
+        <li><button type="button" class="g" data-g="3"><span class="taps" aria-hidden="true"><span></span><span></span><span></span></span><strong>Tap three times</strong><em>Gets grumpy and glares</em></button></li>
+        <li><button type="button" class="g" data-g="4"><span class="taps" aria-hidden="true"><span></span><span></span><span></span><span></span></span><strong>Tap four times</strong><em>Gets dizzy</em></button></li>
+        <li><button type="button" class="g" data-g="pet"><span class="taps" aria-hidden="true"><span class="hold"></span></span><strong>Hold</strong><em>Enjoys being petted</em></button></li>
+        <li class="g"><span class="taps" aria-hidden="true"><span class="long"></span></span><strong>Hold for 5 seconds</strong><em>Switches between eyes and clock</em></li>
+      </ul>
+      <div class="row">
+        <button type="button" class="btn" id="blink">Blink</button>
+        <button type="button" class="btn" id="startle">Startle</button>
+        <button type="button" class="btn" id="sleep">Sleep</button>
+        <button type="button" class="btn" id="demo" aria-pressed="false">Demo</button>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-clock">
+      <h2 id="h-clock"><span class="kanji" lang="ja" aria-hidden="true">時計</span>Clock</h2>
+      <p class="lede">Pages on the clock face. On the device, tap to go forward, tap twice to go back.</p>
+      <div class="seg" data-group="screen" role="group" aria-label="Clock page">
+        <button type="button" data-v="clock" aria-pressed="false">Time</button>
+        <button type="button" data-v="weather" aria-pressed="false">Weather</button>
+        <button type="button" data-v="crypto" aria-pressed="false">Prices</button>
+        <button type="button" data-v="notes" aria-pressed="false">Note</button>
+      </div>
+      <dl class="data" id="data"><dt>Weather</dt><dd>Loading</dd></dl>
+      <div class="row"><button type="button" class="btn" id="refresh">Refresh weather and prices</button></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-note">
+      <h2 id="h-note"><span class="kanji" lang="ja" aria-hidden="true">便り</span>Note</h2>
+      <p class="lede">A page of text for the clock face. Long notes turn their own pages every 5 seconds.</p>
+      <form id="noteForm">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" maxlength="18" autocomplete="off">
+        <label for="text">Text</label>
+        <textarea id="text" name="text" maxlength="1400"></textarea>
+        <p class="count" id="count">21 characters per line, 6 lines per page.</p>
+        <div class="row"><button type="submit" class="btn solid">Send to screen</button></div>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="h-set">
+      <h2 id="h-set"><span class="kanji" lang="ja" aria-hidden="true">設定</span>Settings</h2>
+      <p class="lede">Saved on Mochi, so they survive a restart.</p>
+      <label class="switch"><span>Sound<small>Chirps for touches and changes.</small></span><input type="checkbox" id="sound"></label>
+      <label class="switch"><span>Auto-sleep<small>Gets drowsy after 2 minutes alone and falls asleep after 5.</small></span><input type="checkbox" id="autosleep"></label>
+      <p class="sub" id="startLabel">Show after a restart</p>
+      <div class="seg" data-group="start" role="group" aria-labelledby="startLabel" style="margin-top:10px">
+        <button type="button" data-v="eyes" aria-pressed="false">Eyes</button>
+        <button type="button" data-v="clock" aria-pressed="false">Clock</button>
+      </div>
+      <p class="sub">Wi-Fi</p>
+      <form id="wifiForm">
+        <label for="ssid">Network name</label>
+        <input type="text" id="ssid" name="ssid" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <label for="pass">Password</label>
+        <input type="password" id="pass" name="pass" autocomplete="off">
+        <p class="count">Mochi restarts and joins this network. If that fails, it opens its own hotspot.</p>
+        <div class="row"><button type="submit" class="btn solid" id="wifiBtn">Save and restart</button></div>
+      </form>
+    </section>
+
+    <section class="panel" aria-labelledby="h-stat">
+      <h2 id="h-stat"><span class="kanji" lang="ja" aria-hidden="true">状態</span>Status</h2>
+      <p class="lede">What Mochi reports about itself.</p>
+      <dl class="status" id="status"><dt>Connection</dt><dd>Waiting</dd></dl>
+    </section>
+  </div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:16px">This page needs JavaScript to talk to Mochi.</p></noscript>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const MOODS = {calm:"Calm",listening:"Listening",talking:"Talking",curious:"Curious",focused:"Focused",sleepy:"Sleepy"};
+const FACES = {neutral:"Neutral",happy:"Happy",sad:"Sad",angry:"Angry",surprised:"Surprised",sleepy:"Sleepy",suspicious:"Suspicious"};
+const PAGES = {clock:"the time",weather:"the weather",crypto:"prices",notes:"the note"};
+const DOING = {"eye contact":"Making eye contact","glance away":"Glancing away","explore":"Looking around",
+  "reading":"Reading","manual":"Looking where you point","pursuit":"Following your finger","sleep":"Asleep"};
+const REACT = {glance:"Looking at the touch pad",happy:"Smiling",grumpy:"Grumpy",dizzy:"Dizzy",petting:"Enjoying the pets",waking:"Waking up"};
+let S = null, misses = 0, noteDirty = false;
+
+/* ---- talking to Mochi ---- */
+async function post(path, data) {
+  let r;
+  try { r = await fetch(path, {method:"POST", body:new URLSearchParams(data || {})}); }
+  catch (e) { throw new Error("Mochi didn't answer. Check that this device is on the same Wi-Fi."); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.ok) throw new Error(j.error || ("Mochi refused the request (" + r.status + ")."));
+  return j;
+}
+let toastTimer;
+function toast(msg, bad) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.toggle("bad", !!bad); t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), bad ? 4200 : 2200);
+}
+async function act(path, data, done) {
+  try { await post(path, data); if (done) toast(done); setTimeout(poll, 250); return true; }
+  catch (e) { toast(e.message, true); return false; }
+}
+const eye = (cmd, done) => act("/api/eye", {cmd}, done);
+
+/* ---- live mirror of the OLED (the device's own 1 KB frame buffer) ---- */
+const cv = $("#oled"), cx = cv.getContext("2d"), img = cx.createImageData(128, 64);
+const px = getComputedStyle(document.documentElement).getPropertyValue("--pixel").split(",").map(Number);
+function drawFrame(buf) {
+  const b = new Uint8Array(buf), d = img.data;
+  for (let y = 0; y < 64; y++) for (let x = 0; x < 128; x++) {
+    const on = (b[(y >> 3) * 128 + x] >> (y & 7)) & 1, i = (y * 128 + x) * 4;
+    d[i] = px[0]; d[i + 1] = px[1]; d[i + 2] = px[2]; d[i + 3] = on ? 255 : 0;   // unlit = transparent, so only lit pixels glow
+  }
+  cx.putImageData(img, 0, 0);
+}
+async function mirror() {
+  let wait = 150;
+  if (!document.hidden) {
+    try {
+      const r = await fetch("/api/frame", {cache:"no-store"});
+      if (!r.ok) throw 0;
+      const buf = await r.arrayBuffer();
+      if (buf.byteLength === 1024) drawFrame(buf);
+    } catch (e) { wait = 1500; }
+  } else wait = 600;
+  setTimeout(mirror, wait);
+}
+
+/* ---- state ---- */
+function press(group, value) {
+  $$(`[data-group=${group}] button`).forEach(b => b.setAttribute("aria-pressed", b.dataset.v === value));
+}
+function doing(s) {
+  if (s.mode === "clock") return "Showing " + PAGES[s.screen];
+  const e = s.eye;
+  if (e.demo) return "Running the demo";
+  if (e.react !== "none") return REACT[e.react] || e.react;
+  if (e.sleeping) return "Asleep";
+  if (e.drowsy) return "Getting sleepy";
+  return DOING[e.state] || e.state;
+}
+function signal(rssi) {
+  if (!rssi) return "";
+  const q = rssi > -55 ? "strong" : rssi > -67 ? "good" : rssi > -78 ? "weak" : "very weak";
+  return `, ${q} signal (${rssi} dBm)`;
+}
+function uptime(s) {
+  const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+  return d ? `${d} d ${h} h` : h ? `${h} h ${m} min` : `${m} min`;
+}
+function rows(el, pairs) {
+  el.replaceChildren(...pairs.flatMap(([k, v]) => {
+    const dt = document.createElement("dt"), dd = document.createElement("dd");
+    dt.textContent = k; dd.textContent = v; return [dt, dd];
+  }));
+}
+function render(s) {
+  S = s;
+  document.body.classList.remove("offline");
+  $("#greet").textContent = "Hello, " + s.owner;
+  $("#hhmm").textContent = s.time.synced ? s.time.hhmm : "--:--";
+  const net = $("#net"); net.classList.toggle("up", s.wifi.up);
+  net.title = s.wifi.ap ? "Hotspot " + s.wifi.ssid : (s.wifi.up ? "On " + s.wifi.ssid : "Wi-Fi disconnected");
+  const fu = $("#fusuma"); fu.dataset.on = s.mode;
+  $$("#fusuma button").forEach(b => b.setAttribute("aria-checked", b.dataset.mode === s.mode));
+  $("#live").textContent = doing(s);
+  press("mood", s.eye.mood); press("expr", s.eye.expr); press("screen", s.screen); press("start", s.settings.start);
+  $("#sleep").textContent = s.eye.sleeping ? "Wake up" : "Sleep";
+  $("#demo").setAttribute("aria-pressed", s.eye.demo);
+  $("#sound").checked = s.settings.sound; $("#autosleep").checked = s.settings.autosleep;
+
+  const w = s.weather || {}, data = [];
+  data.push(["Weather", w.ok ? `${w.temp} °${w.unit}, ${w.word.toLowerCase()} in ${w.city}` : (s.wifi.up && !s.wifi.ap ? "Loading" : "Needs internet")]);
+  if (w.ok) data.push(["Today", `${w.min}° to ${w.max}°, humidity ${w.hum}%`]);
+  for (const c of s.coins || []) data.push([c.tag, c.ok ? `$${Number(c.usd).toLocaleString()}  ${c.chg >= 0 ? "▲" : "▼"} ${Math.abs(c.chg)}%` : "Not loaded"]);
+  rows($("#data"), data);
+  $("#refresh").textContent = s.fetching ? "Refreshing" : "Refresh weather and prices";
+
+  if (!noteDirty && document.activeElement !== $("#title") && document.activeElement !== $("#text")) {
+    $("#title").value = s.note.title; $("#text").value = s.note.text; count();
+  }
+  if (document.activeElement !== $("#ssid") && !$("#ssid").value && !s.wifi.ap) $("#ssid").value = s.wifi.ssid;
+
+  const o = s.oled, y = s.sys;
+  rows($("#status"), [
+    ["Address", `http://${s.wifi.host}  or  ${s.wifi.ip}`],
+    ["Wi-Fi", s.wifi.ap ? `Hotspot "${s.wifi.ssid}"` : (s.wifi.up ? s.wifi.ssid + signal(s.wifi.rssi) : "Disconnected, retrying")],
+    ["Screen", o.ok ? `OLED on GPIO${o.sda}/${o.scl} at 0x${o.addr.toString(16).toUpperCase()}` : "No OLED found (the mirror above still works)"],
+    ["Frame rate", `${y.fps} frames per second`],
+    ["Clock", s.time.synced ? `Synced, ${s.time.date}` : "Waiting for internet time"],
+    ["Memory", `${Math.round(y.heap / 1024)} KB free, lowest ${Math.round(y.minHeap / 1024)} KB`],
+    ["Running for", uptime(y.uptime)],
+  ]);
+}
+async function poll() {
+  try {
+    const r = await fetch("/api/state", {cache:"no-store"});
+    if (!r.ok) throw 0;
+    render(await r.json()); misses = 0;
+  } catch (e) {
+    if (++misses >= 2) {
+      document.body.classList.add("offline");
+      $("#live").textContent = "Mochi is not answering";
+    }
+  }
+}
+setInterval(() => { if (!document.hidden) poll(); }, 2000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) poll(); });
+
+/* ---- gaze pad ---- */
+const pad = $("#pad"), dot = $("#dot");
+let dragging = false, lastSend = 0, gx = 0, gy = 0, autoTimer, sendTimer;
+function sendGaze() {
+  lastSend = Date.now();
+  post("/api/eye", {cmd:`lookn ${gx.toFixed(2)} ${(-gy).toFixed(2)}`}).catch(() => {});
+}
+function setGaze(x, y) {
+  const m = Math.hypot(x, y); if (m > 1) { x /= m; y /= m; }
+  gx = x; gy = y;
+  const r = pad.clientWidth * 0.385;
+  dot.style.transform = `translate(${x * r}px,${y * r}px)`;
+  clearTimeout(sendTimer);
+  const due = 90 - (Date.now() - lastSend);
+  if (due <= 0) sendGaze(); else sendTimer = setTimeout(sendGaze, due);
+}
+function fromPointer(e) {
+  const b = pad.getBoundingClientRect(), r = b.width * 0.385;
+  setGaze((e.clientX - b.left - b.width / 2) / r, (e.clientY - b.top - b.height / 2) / r);
+}
+function release() {
+  pad.classList.remove("drag"); dot.style.transform = "";
+  clearTimeout(autoTimer); autoTimer = setTimeout(() => post("/api/eye", {cmd:"auto"}).catch(() => {}), 1200);
+}
+pad.addEventListener("pointerdown", e => {
+  dragging = true; pad.setPointerCapture(e.pointerId); pad.classList.add("drag"); clearTimeout(autoTimer); fromPointer(e);
+});
+pad.addEventListener("pointermove", e => { if (dragging) fromPointer(e); });
+["pointerup", "pointercancel"].forEach(t => pad.addEventListener(t, () => { if (dragging) { dragging = false; release(); } }));
+pad.addEventListener("keydown", e => {
+  const k = {ArrowLeft:[-.25, 0], ArrowRight:[.25, 0], ArrowUp:[0, -.25], ArrowDown:[0, .25]}[e.key];
+  if (k) { e.preventDefault(); clearTimeout(autoTimer); pad.classList.add("drag"); setGaze(gx + k[0], gy + k[1]); }
+  else if (e.key === "Escape" || e.key === "Enter") { gx = gy = 0; release(); }
+});
+pad.addEventListener("blur", () => { if (!dragging && pad.classList.contains("drag")) release(); });
+
+/* ---- controls ---- */
+$$("#fusuma button").forEach(b => b.addEventListener("click", () => {
+  const m = b.dataset.mode; $("#fusuma").dataset.on = m;
+  $$("#fusuma button").forEach(x => x.setAttribute("aria-checked", x === b));
+  act("/api/mode", {m}, m === "eyes" ? "Showing the eyes" : "Showing the clock");
+}));
+$$("[data-group=mood] button").forEach(b => b.addEventListener("click", () => {
+  press("mood", b.dataset.v); eye("mood " + b.dataset.v, "Mood set to " + MOODS[b.dataset.v]);
+}));
+$$("[data-group=expr] button").forEach(b => b.addEventListener("click", () => {
+  press("expr", b.dataset.v); eye("expr " + b.dataset.v, "Face set to " + FACES[b.dataset.v]);
+}));
+$$("button.g").forEach(b => b.addEventListener("click", () => eye("gesture " + b.dataset.g, b.querySelector("em").textContent)));
+$("#blink").addEventListener("click", () => eye("blink", "Blinked"));
+$("#startle").addEventListener("click", () => eye(`startle ${Math.random() < .5 ? -24 : 24} 5`, "Startled"));
+$("#sleep").addEventListener("click", () => {
+  const asleep = S && S.eye.sleeping; eye(asleep ? "wake" : "sleep", asleep ? "Awake" : "Sleeping");
+});
+$("#demo").addEventListener("click", () => {
+  const on = !(S && S.eye.demo); eye("demo " + (on ? "on" : "off"), on ? "Demo started" : "Demo stopped");
+});
+$$("[data-group=screen] button").forEach(b => b.addEventListener("click", () => {
+  press("screen", b.dataset.v); act("/api/screen", {s:b.dataset.v}, "Showing " + PAGES[b.dataset.v]);
+}));
+$("#refresh").addEventListener("click", () => act("/api/refresh", {}, "Refreshing weather and prices"));
+
+function count() {
+  const lines = $("#text").value.split("\n").reduce((n, l) => n + Math.max(1, Math.ceil(l.length / 21)), 0);
+  const pages = Math.max(1, Math.ceil(lines / 6));
+  $("#count").textContent = `21 characters per line, 6 lines per page. This note fills ${pages} page${pages > 1 ? "s" : ""}.`;
+}
+["#title", "#text"].forEach(id => $(id).addEventListener("input", () => { noteDirty = true; count(); }));
+$("#noteForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (await act("/api/note", {title:$("#title").value, text:$("#text").value}, "Note sent to screen")) noteDirty = false;
+});
+
+$("#sound").addEventListener("change", e => act("/api/settings", {sound:e.target.checked ? 1 : 0}, e.target.checked ? "Sound on" : "Sound off"));
+$("#autosleep").addEventListener("change", e => act("/api/settings", {autosleep:e.target.checked ? 1 : 0}, e.target.checked ? "Auto-sleep on" : "Auto-sleep off"));
+$$("[data-group=start] button").forEach(b => b.addEventListener("click", () => {
+  press("start", b.dataset.v); act("/api/settings", {start:b.dataset.v}, b.dataset.v === "eyes" ? "Starts with the eyes" : "Starts with the clock");
+}));
+
+let wifiArmed = 0;
+$("#wifiForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const btn = $("#wifiBtn");
+  if (!$("#ssid").value.trim()) { toast("Enter the network name.", true); return; }
+  if (Date.now() - wifiArmed > 4000) {   // two taps instead of a blocking dialog
+    wifiArmed = Date.now(); btn.textContent = "Tap again to restart";
+    setTimeout(() => { if (Date.now() - wifiArmed >= 4000) btn.textContent = "Save and restart"; }, 4100);
+    return;
+  }
+  wifiArmed = 0; btn.textContent = "Save and restart";
+  act("/api/wifi", {ssid:$("#ssid").value.trim(), pass:$("#pass").value}, "Saved. Mochi is restarting.");
+});
+
+poll(); mirror();
+</script>
+</body>
+</html>

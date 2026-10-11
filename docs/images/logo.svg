@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="MochiEyes logo: a vermilion seal with two eyes">
+  <defs>
+    <!-- Mochi eye: a round eye cut flat by the upper lid -->
+    <clipPath id="lidL"><polygon points="20,54.5 58,53.5 58,90 20,90"/></clipPath>
+    <clipPath id="irisL"><circle cx="41.5" cy="66" r="10"/></clipPath>
+    <clipPath id="lidR"><polygon points="100,54.5 62,53.5 62,90 100,90"/></clipPath>
+    <clipPath id="irisR"><circle cx="78.5" cy="66" r="10"/></clipPath>
+  </defs>
+  <g transform="rotate(-4 60 60)">
+    <rect x="9" y="9" width="102" height="102" rx="14" fill="#c13b27"/>
+    <rect x="16.5" y="16.5" width="87" height="87" rx="9" fill="none" stroke="#fff6ee" stroke-width="2.4"/>
+    <g clip-path="url(#lidL)">
+      <circle cx="40" cy="65" r="15" fill="#fff6ee"/>
+      <circle cx="41.5" cy="66" r="10" fill="#132139"/>
+      <circle cx="51" cy="73" r="8" fill="#fff6ee" clip-path="url(#irisL)"/>
+      <circle cx="42.5" cy="62" r="2.2" fill="#fff6ee"/>
+    </g>
+    <g clip-path="url(#lidR)">
+      <circle cx="80" cy="65" r="15" fill="#fff6ee"/>
+      <circle cx="78.5" cy="66" r="10" fill="#132139"/>
+      <circle cx="69" cy="73" r="8" fill="#fff6ee" clip-path="url(#irisR)"/>
+      <circle cx="77.5" cy="62" r="2.2" fill="#fff6ee"/>
+    </g>
+  </g>
+</svg>
