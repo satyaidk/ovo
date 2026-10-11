@@ -3,7 +3,7 @@
 //
 //   humanGeometry() - almond opening, lids covering the top/bottom of the
 //                     iris like a real eye, gray (dithered) iris, black pupil.
-//   mochiGeometry() - measured from your uploaded frame (tools/
+//   ovoGeometry() - measured from your uploaded frame (tools/
 //                     fit_eye_geometry.py): round eye cut flat by the upper
 //                     lid, big black iris, gloss crescent, catchlight, rim arc.
 //
@@ -94,7 +94,7 @@ inline EyeGeometry humanGeometry() {
 // ~1 px towards the nose; rim arc ~18 px from the eye centre on the
 // lower-nasal side (10..40 deg); gloss disc r ~9 px on the lower-nasal part
 // of the iris. Both eyes averaged and made mirror-symmetric about x = 64.
-inline EyeGeometry mochiGeometry() {
+inline EyeGeometry ovoGeometry() {
   EyeGeometry g{};
   // Fitted by host/fit_preset.cpp (IoU 0.81 vs your frame, see README).
   g.centerX[0] = 20.5f; g.centerX[1] = 107.5f; g.centerY = 28.2f;

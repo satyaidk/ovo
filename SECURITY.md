@@ -1,6 +1,6 @@
 # Security policy
 
-MochiEyes is a hobby device for a home network. It is not hardened for
+OvoEyes is a hobby device for a home network. It is not hardened for
 untrusted networks, and this page explains what that means in practice.
 
 ## Supported versions
@@ -28,7 +28,7 @@ These are documented trade-offs, not bugs. Reports that show a concrete
 impact beyond what is described here are still welcome.
 
 - **The web controller has no login.** Anyone on the same Wi-Fi network can
-  open `http://mochi.local`, change the eyes, write the note, or replace the
+  open `http://ovo.local`, change the eyes, write the note, or replace the
   saved Wi-Fi credentials (which restarts the device). Keep the device on a
   network you trust.
 - **The fallback hotspot uses a shared password** (`AP_PASS` in `secrets.h`,

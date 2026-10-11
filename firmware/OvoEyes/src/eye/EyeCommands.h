@@ -17,7 +17,7 @@
 //   user <yaw> <pitch>      where you are (auto mode looks there)
 //   startle <yaw> <pitch>   sudden event in that direction
 //   sleep | wake
-//   style <human|mochi>     switch drawing preset
+//   style <human|ovo>       switch drawing preset
 //   feature <name> <0|1>    saccades micro blinks lids pupil head vergence corrective gazeblink
 //   status | help
 #pragma once

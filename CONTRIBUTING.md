@@ -1,4 +1,4 @@
-# Contributing to MochiEyes
+# Contributing to OvoEyes
 
 Thanks for your interest. Bug reports, new reactions, clock pages and
 documentation fixes are all welcome. This guide covers how to build, test and
@@ -20,32 +20,32 @@ You need:
 - Python 3.8+ (for `tools/`)
 - A C++17 compiler for host tests (g++, clang, or Docker with the `gcc:14` image)
 
-In `firmware/MochiEyes/`, copy `secrets.example.h` to `secrets.h` and fill in
+In `firmware/OvoEyes/`, copy `secrets.example.h` to `secrets.h` and fill in
 your Wi-Fi details. Everything that is flashed lives in that folder.
 
 Compile from the command line exactly as CI does:
 
 ```sh
-arduino-cli compile --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs --warnings all firmware/MochiEyes
+arduino-cli compile --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs --warnings all firmware/OvoEyes
 ```
 
-The sketch folder must stay called `MochiEyes` (Arduino requires the folder
+The sketch folder must stay called `OvoEyes` (Arduino requires the folder
 and the `.ino` to share a name).
 
-In the table below, paths starting with `src/` or `MochiEyes.ino` are inside
-`firmware/MochiEyes/`.
+In the table below, paths starting with `src/` or `OvoEyes.ino` are inside
+`firmware/OvoEyes/`.
 
 ## Where to make a change
 
 | You want to...                         | Edit                                   |
 | -------------------------------------- | -------------------------------------- |
-| Add or change a touch reaction         | `startReaction()` / `onEyesGesture()` in `MochiEyes.ino` |
+| Add or change a touch reaction         | `startReaction()` / `onEyesGesture()` in `OvoEyes.ino` |
 | Change tap or hold timings             | `touch::Config` in `src/touch/TouchGestures.h`, then update the tests |
 | Change how the eyes move or blink      | `src/eye/EyeEngine.cpp`, `src/eye/BehaviorParams.h` |
 | Change how the eyes look               | `src/eye/EyeGeometry.h`                |
-| Add a clock page                       | `Screen` enum and `drawClockMode()` in `MochiEyes.ino` |
+| Add a clock page                       | `Screen` enum and `drawClockMode()` in `OvoEyes.ino` |
 | Change the web page                    | `web/index.html`, then run `python tools/embed_web.py` |
-| Add a web API route                    | `startWebServer()` in `MochiEyes.ino`, `tools/preview/serve.py`, and [docs/API.md](docs/API.md) |
+| Add a web API route                    | `startWebServer()` in `OvoEyes.ino`, `tools/preview/serve.py`, and [docs/API.md](docs/API.md) |
 
 Never edit `src/web/WebUi.h` by hand; it is generated.
 
@@ -55,13 +55,13 @@ Run the host tests before every pull request:
 
 ```sh
 cd tests/host
-g++ -std=c++11 -Wall -Wextra -Werror -I../../firmware/MochiEyes test_touch.cpp -o test_touch && ./test_touch
+g++ -std=c++11 -Wall -Wextra -Werror -I../../firmware/OvoEyes test_touch.cpp -o test_touch && ./test_touch
 ```
 
 To work on the web page without a device:
 
 ```sh
-F=firmware/MochiEyes
+F=firmware/OvoEyes
 g++ -std=c++17 -O2 -I$F tools/preview/frames.cpp $F/src/eye/EyeEngine.cpp $F/src/eye/EyeRenderer.cpp -o build/frames
 ./build/frames build/frames.bin 20 30
 python tools/preview/serve.py      # http://127.0.0.1:8000

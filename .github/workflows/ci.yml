@@ -38,7 +38,7 @@ jobs:
       # secrets.example.h alone.
       - name: Compile
         run: |
-          arduino-cli compile --fqbn "$FQBN" --warnings all firmware/MochiEyes 2>&1 | tee build.log
+          arduino-cli compile --fqbn "$FQBN" --warnings all firmware/OvoEyes 2>&1 | tee build.log
           grep -E "Sketch uses|Global variables" build.log >> "$GITHUB_STEP_SUMMARY"
 
   host-tests:
@@ -50,14 +50,14 @@ jobs:
       - name: Touch gesture tests (with coverage)
         working-directory: tests/host
         run: |
-          g++ -std=c++11 -O0 -Wall -Wextra -Werror --coverage -I../../firmware/MochiEyes test_touch.cpp -o touch_tests
+          g++ -std=c++11 -O0 -Wall -Wextra -Werror --coverage -I../../firmware/OvoEyes test_touch.cpp -o touch_tests
           ./touch_tests
           gcov touch_tests-test_touch.gcda | grep -A1 "TouchGestures.h'" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Eye engine builds and renders on a PC
         run: |
           mkdir -p build
-          F=firmware/MochiEyes
+          F=firmware/OvoEyes
           g++ -std=c++17 -O2 -Wall -Wextra -I$F tools/preview/frames.cpp $F/src/eye/EyeEngine.cpp $F/src/eye/EyeRenderer.cpp -o build/frames
           ./build/frames build/frames.bin 20 5
           test "$(stat -c %s build/frames.bin)" -eq $((100 * 1024))

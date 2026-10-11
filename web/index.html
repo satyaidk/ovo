@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#e3ebee" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#12203a" media="(prefers-color-scheme: dark)">
-<title>Mochi</title>
+<title>Ovo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
@@ -52,7 +52,7 @@ h1{margin:0;font:800 1.6rem/1.05 var(--mincho);letter-spacing:.02em}
   .stage{position:sticky;top:12px}
 }
 
-/* ---- stage: the enso gaze pad around Mochi's live screen ---- */
+/* ---- stage: the enso gaze pad around Ovo's live screen ---- */
 .stage{display:flex;flex-direction:column;align-items:center;text-align:center;padding:14px 0 28px}
 .enso{position:relative;width:min(86vw,380px);aspect-ratio:1;border-radius:50%;touch-action:none;cursor:crosshair;outline-offset:8px}
 .enso svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
@@ -165,19 +165,19 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 </head>
 <body>
 <header class="top">
-  <div class="seal" lang="ja" aria-hidden="true">餅</div>
+  <div class="seal" lang="ja" aria-hidden="true">卵</div>
   <div>
-    <h1>Mochi</h1>
+    <h1>Ovo</h1>
     <p class="greet" id="greet">Hello</p>
   </div>
-  <p class="now" aria-label="Time on Mochi"><span id="hhmm">--:--</span><span class="net" id="net" title="Wi-Fi"></span></p>
+  <p class="now" aria-label="Time on Ovo"><span id="hhmm">--:--</span><span class="net" id="net" title="Wi-Fi"></span></p>
 </header>
 <div class="hem" aria-hidden="true"></div>
 
 <main class="layout">
-  <section class="stage" aria-label="Mochi's screen">
+  <section class="stage" aria-label="Ovo's screen">
     <div class="enso" id="pad" tabindex="0" role="application"
-         aria-label="Gaze pad. Drag, or use the arrow keys, to choose where Mochi looks. Escape lets it look around on its own.">
+         aria-label="Gaze pad. Drag, or use the arrow keys, to choose where Ovo looks. Escape lets it look around on its own.">
       <svg viewBox="0 0 300 300" aria-hidden="true">
         <defs>
           <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
@@ -194,23 +194,23 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
           <path class="dry" d="M197.2 249.5 L182.5 253.9 L167.7 258.1 L152.4 261.6 L136.5 263.0 L120.6 261.0 L105.3 255.7 L91.1 248.3 L77.5 239.6 L64.6 229.5 L53.6 217.3 L45.7 202.8 L41.5 186.9 L40.1 170.9 L40.1 155.2 L40.5 139.7 L41.9 124.2"/>
         </g>
       </svg>
-      <div class="screen"><canvas id="oled" width="128" height="64" aria-label="Live copy of Mochi's screen" role="img"></canvas><p>Not connected</p></div>
+      <div class="screen"><canvas id="oled" width="128" height="64" aria-label="Live copy of Ovo's screen" role="img"></canvas><p>Not connected</p></div>
       <span class="dot" id="dot"></span>
     </div>
-    <p class="hint">Drag inside the circle to choose where Mochi looks. Let go and Mochi looks around on its own.</p>
+    <p class="hint">Drag inside the circle to choose where Ovo looks. Let go and Ovo looks around on its own.</p>
     <div class="fusuma" id="fusuma" role="radiogroup" aria-label="What the screen shows" data-on="eyes">
       <span class="slide" aria-hidden="true"></span>
       <button type="button" role="radio" data-mode="eyes" aria-checked="true"><b lang="ja" aria-hidden="true">目</b>Eyes</button>
       <button type="button" role="radio" data-mode="clock" aria-checked="false"><b lang="ja" aria-hidden="true">時</b>Clock</button>
     </div>
     <p class="small">Or hold the touch pad for 5 seconds.</p>
-    <p class="live" id="live" aria-live="polite">Connecting to Mochi</p>
+    <p class="live" id="live" aria-live="polite">Connecting to Ovo</p>
   </section>
 
   <div>
     <section class="panel" aria-labelledby="h-mood">
       <h2 id="h-mood"><span class="kanji" lang="ja" aria-hidden="true">気分</span>Mood</h2>
-      <p class="lede">How Mochi behaves when left alone.</p>
+      <p class="lede">How Ovo behaves when left alone.</p>
       <div class="seals" data-group="mood">
         <button type="button" data-v="calm" aria-pressed="false"><i lang="ja" aria-hidden="true">静</i>Calm</button>
         <button type="button" data-v="listening" aria-pressed="false"><i lang="ja" aria-hidden="true">聴</i>Listening</button>
@@ -237,7 +237,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 
     <section class="panel" aria-labelledby="h-touch">
       <h2 id="h-touch"><span class="kanji" lang="ja" aria-hidden="true">合図</span>Touch</h2>
-      <p class="lede">What the touch pad does. Try each one from here. Any tap wakes Mochi up.</p>
+      <p class="lede">What the touch pad does. Try each one from here. Any tap wakes Ovo up.</p>
       <ul class="gestures">
         <li><button type="button" class="g" data-g="1"><span class="taps" aria-hidden="true"><span></span></span><strong>Tap once</strong><em>Looks toward the pad</em></button></li>
         <li><button type="button" class="g" data-g="2"><span class="taps" aria-hidden="true"><span></span><span></span></span><strong>Tap twice</strong><em>Smiles at you</em></button></li>
@@ -282,7 +282,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
 
     <section class="panel" aria-labelledby="h-set">
       <h2 id="h-set"><span class="kanji" lang="ja" aria-hidden="true">設定</span>Settings</h2>
-      <p class="lede">Saved on Mochi, so they survive a restart.</p>
+      <p class="lede">Saved on Ovo, so they survive a restart.</p>
       <label class="switch"><span>Sound<small>Chirps for touches and changes.</small></span><input type="checkbox" id="sound"></label>
       <label class="switch"><span>Auto-sleep<small>Gets drowsy after 2 minutes alone and falls asleep after 5.</small></span><input type="checkbox" id="autosleep"></label>
       <p class="sub" id="startLabel">Show after a restart</p>
@@ -296,20 +296,20 @@ input:focus,textarea:focus{outline:none;border-color:var(--ink)}
         <input type="text" id="ssid" name="ssid" autocomplete="off" autocapitalize="off" spellcheck="false">
         <label for="pass">Password</label>
         <input type="password" id="pass" name="pass" autocomplete="off">
-        <p class="count">Mochi restarts and joins this network. If that fails, it opens its own hotspot.</p>
+        <p class="count">Ovo restarts and joins this network. If that fails, it opens its own hotspot.</p>
         <div class="row"><button type="submit" class="btn solid" id="wifiBtn">Save and restart</button></div>
       </form>
     </section>
 
     <section class="panel" aria-labelledby="h-stat">
       <h2 id="h-stat"><span class="kanji" lang="ja" aria-hidden="true">状態</span>Status</h2>
-      <p class="lede">What Mochi reports about itself.</p>
+      <p class="lede">What Ovo reports about itself.</p>
       <dl class="status" id="status"><dt>Connection</dt><dd>Waiting</dd></dl>
     </section>
   </div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<noscript><p style="padding:16px">This page needs JavaScript to talk to Mochi.</p></noscript>
+<noscript><p style="padding:16px">This page needs JavaScript to talk to Ovo.</p></noscript>
 
 <script>
 "use strict";
@@ -322,13 +322,13 @@ const DOING = {"eye contact":"Making eye contact","glance away":"Glancing away",
 const REACT = {glance:"Looking at the touch pad",happy:"Smiling",grumpy:"Grumpy",dizzy:"Dizzy",petting:"Enjoying the pets",waking:"Waking up"};
 let S = null, misses = 0, noteDirty = false;
 
-/* ---- talking to Mochi ---- */
+/* ---- talking to Ovo ---- */
 async function post(path, data) {
   let r;
   try { r = await fetch(path, {method:"POST", body:new URLSearchParams(data || {})}); }
-  catch (e) { throw new Error("Mochi didn't answer. Check that this device is on the same Wi-Fi."); }
+  catch (e) { throw new Error("Ovo didn't answer. Check that this device is on the same Wi-Fi."); }
   const j = await r.json().catch(() => ({}));
-  if (!r.ok || !j.ok) throw new Error(j.error || ("Mochi refused the request (" + r.status + ")."));
+  if (!r.ok || !j.ok) throw new Error(j.error || ("Ovo refused the request (" + r.status + ")."));
   return j;
 }
 let toastTimer;
@@ -441,7 +441,7 @@ async function poll() {
   } catch (e) {
     if (++misses >= 2) {
       document.body.classList.add("offline");
-      $("#live").textContent = "Mochi is not answering";
+      $("#live").textContent = "Ovo is not answering";
     }
   }
 }
@@ -538,7 +538,7 @@ $("#wifiForm").addEventListener("submit", e => {
     return;
   }
   wifiArmed = 0; btn.textContent = "Save and restart";
-  act("/api/wifi", {ssid:$("#ssid").value.trim(), pass:$("#pass").value}, "Saved. Mochi is restarting.");
+  act("/api/wifi", {ssid:$("#ssid").value.trim(), pass:$("#pass").value}, "Saved. Ovo is restarting.");
 });
 
 poll(); mirror();

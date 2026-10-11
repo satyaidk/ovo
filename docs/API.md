@@ -3,7 +3,7 @@
 The firmware serves a small JSON API on port 80. The controller page uses it,
 and so can scripts or home-automation tools on the same network.
 
-- Base URL: `http://mochi.local` (or the IP shown on the OLED at boot;
+- Base URL: `http://ovo.local` (or the IP shown on the OLED at boot;
   `http://192.168.4.1` in hotspot mode).
 - `POST` bodies are form-encoded (`application/x-www-form-urlencoded`).
 - Every `POST` reply is JSON: `{"ok": true, "reply": "..."}` on success, or
@@ -11,7 +11,7 @@ and so can scripts or home-automation tools on the same network.
 - There is no authentication. See [SECURITY.md](../SECURITY.md).
 
 `GET` requests (`/api/state`, `/api/frame`) do not count as interaction, so an
-open browser tab never keeps Mochi awake. `POST` requests do.
+open browser tab never keeps Ovo awake. `POST` requests do.
 
 ## Endpoints
 
@@ -32,7 +32,7 @@ open browser tab never keeps Mochi awake. `POST` requests do.
 
 The same command language works over Serial at 115200 baud.
 
-App commands, handled in `MochiEyes.ino`:
+App commands, handled in `OvoEyes.ino`:
 
 | Command                   | Effect |
 | ------------------------- | ------ |
@@ -58,19 +58,19 @@ Eye engine commands, handled by `src/eye/EyeCommands.cpp`:
 | `sleep` / `wake`          | Close / open the eyes |
 | `pause`                   | Phrase boundary while talking (likely blink) |
 | `light <0..1>`, `arousal <0..1>`, `near <cm>`, `user <yaw> <pitch>` | Engine inputs |
-| `style human` / `style mochi` | Switch the drawing preset |
+| `style human` / `style ovo` | Switch the drawing preset |
 | `feature <name> <0/1>`    | Toggle a mechanism: `saccades micro blinks lids pupil head vergence corrective gazeblink` |
 | `status`, `help`          | Text replies |
 
-`mood` and `expr` set Mochi's **base** personality: what it returns to after
+`mood` and `expr` set Ovo's **base** personality: what it returns to after
 a touch reaction or after waking up.
 
 Example:
 
 ```sh
-curl -d "cmd=mood curious" http://mochi.local/api/eye
-curl -d "m=clock" http://mochi.local/api/mode
-curl -d "title=Today" --data-urlencode "text=Buy milk" http://mochi.local/api/note
+curl -d "cmd=mood curious" http://ovo.local/api/eye
+curl -d "m=clock" http://ovo.local/api/mode
+curl -d "title=Today" --data-urlencode "text=Buy milk" http://ovo.local/api/note
 ```
 
 ## `GET /api/state`
@@ -87,7 +87,7 @@ curl -d "title=Today" --data-urlencode "text=Buy milk" http://mochi.local/api/no
     "sleeping": false, "drowsy": false, "demo": false
   },
   "time": { "synced": true, "hhmm": "20:41", "date": "Sun 11 Oct" },
-  "wifi": { "ap": false, "ssid": "Home", "ip": "192.168.1.42", "rssi": -58, "up": true, "host": "mochi.local" },
+  "wifi": { "ap": false, "ssid": "Home", "ip": "192.168.1.42", "rssi": -58, "up": true, "host": "ovo.local" },
   "oled": { "ok": true, "sda": 20, "scl": 21, "addr": 60 },
   "weather": { "ok": true, "city": "Bengaluru", "temp": 24.6, "unit": "C", "word": "Part cloudy", "hum": 71, "min": 20, "max": 29 },
   "coins": [ { "tag": "BTC", "ok": true, "usd": "64210", "chg": 1.4 } ],

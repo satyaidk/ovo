@@ -1,4 +1,4 @@
-// MochiEyes - eyes + clock desk companion for the ESP32-C3 SuperMini.
+// OvoEyes - eyes + clock desk companion for the ESP32-C3 SuperMini.
 //
 // Arduino IDE > Tools:
 //   Board            ESP32C3 Dev Module
@@ -44,7 +44,7 @@
 
 // ---- Settings ----
 #define OWNER_NAME   "Kitty"
-#define MDNS_NAME    "mochi"     // http://mochi.local
+#define MDNS_NAME    "ovo"     // http://ovo.local
 #define TZ_STRING    "IST-5:30"  // POSIX sign is inverted
 #define UNITS_METRIC true
 #define TOUCH_SIDE   (-1)        // pad on the left as you face the screen; +1 if on the right
@@ -149,7 +149,7 @@ bool       redrawNow = true;
 String wifiSsid, wifiPass;
 bool   apMode = false;
 String noteTitle = "Notes";
-String noteText  = "Tap the pad to change pages.\n\nOpen http://mochi.local\nto write here.";
+String noteText  = "Tap the pad to change pages.\n\nOpen http://ovo.local\nto write here.";
 std::vector<String> noteLines;
 uint8_t  notePage = 0;
 uint32_t lastNoteFlip = 0;
@@ -403,7 +403,7 @@ bool fetchJson(const String& url, JsonDocument& doc) {
     client.setInsecure();   // public, read-only data
     HTTPClient http;
     http.setTimeout(12000);
-    http.setUserAgent("esp32-mochi");
+    http.setUserAgent("esp32-ovo");
     if (http.begin(client, url)) {
       code = http.GET();
       if (code == HTTP_CODE_OK) payload = http.getString();
@@ -1423,7 +1423,7 @@ void setup() {
 #if SERIAL_SAFE
   Serial.begin(115200);
   delay(1500);
-  Serial.println("\n=== MochiEyes booting ===");
+  Serial.println("\n=== OvoEyes booting ===");
 #endif
 
   pinMode(PIN_TOUCH, INPUT);
@@ -1446,7 +1446,7 @@ void setup() {
   }
 
   dataLock = xSemaphoreCreateMutex();
-  renderer.setGeometry(eye::mochiGeometry());
+  renderer.setGeometry(eye::ovoGeometry());
   engine.begin((uint32_t)random(1, 0x7FFFFFFF), millis());
   engine.blinkNow();
   appMode = MODE_EYES;

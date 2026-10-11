@@ -1,4 +1,4 @@
-# Private credentials (template: firmware/MochiEyes/secrets.example.h)
+# Private credentials (template: firmware/OvoEyes/secrets.example.h)
 secrets.h
 
 # Host builds, rendered frames, preview output

@@ -11,8 +11,8 @@ Measured with arduino-cli and ESP32 core 3.3.12 for `esp32c3`
 | Build | Flash used | Default app partition (1,310,720 bytes) |
 | ----- | ---------- | --------------------------------------- |
 | `clock.ino` alone | 1,274,489 bytes | 97% |
-| Eyes-only `MochiEyes.ino` (U8g2) | 378,334 bytes | 28% |
-| Merged firmware | 1,351,143 bytes | 103%: "text section exceeds available space" |
+| Eyes-only sketch (U8g2) | 378,334 bytes | 28% |
+| Merged firmware | 1,351,135 bytes | 103%: "text section exceeds available space" |
 
 The clock alone already used 97% of the default partition. Most of that is
 the Wi-Fi stack, TLS (for HTTPS), the HTTP client and the web server, not the

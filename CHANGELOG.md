@@ -9,11 +9,11 @@ All notable changes to this project are documented here. The format follows
 ## [1.0.0] - 2026-10-11
 
 First release of the merged firmware. It combines the info terminal
-(`clock.ino`) and the eyes-only `MochiEyes.ino` into one program.
+(`clock.ino`) and the earlier eyes-only sketch into one program, named OvoEyes.
 
 ### Added
 
-- Two faces on one OLED: the Mochi eyes and the clock pages. Holding the touch
+- Two faces on one OLED: the Ovo eyes and the clock pages. Holding the touch
   pad for 5 seconds switches between them, with a progress bar on screen and a
   shoji-door transition.
 - Touch reactions for the eyes: 1 tap glances at the pad, 2 taps smile,
@@ -36,14 +36,14 @@ First release of the merged firmware. It combines the info terminal
 
 ### Changed
 
-- Everything that is flashed now lives in one folder, `firmware/MochiEyes/`;
+- Everything that is flashed now lives in one folder, `firmware/OvoEyes/`;
   docs, tests and tools sit outside it. The two original sketches were removed
   after merging.
 - Weather and price downloads run in a FreeRTOS task, so the eyes keep moving
   during HTTPS requests.
 - The eyes now render into the Adafruit SSD1306 buffer instead of U8g2, so one
   display library serves both faces.
-- The local hostname is now `mochi.local` (was `terminal.local`).
+- The local hostname is now `ovo.local` (was `terminal.local`).
 - Partition scheme is now **Minimal SPIFFS (1.9MB APP with OTA)**. The merged
   firmware does not fit the default 1.2 MB app partition.
 - The I2C pin search no longer probes the touch and buzzer pins.
@@ -53,5 +53,5 @@ First release of the merged firmware. It combines the info terminal
 - Wi-Fi credentials moved from the sketch into the git-ignored `secrets.h`
   (template: `secrets.example.h`).
 
-[Unreleased]: https://github.com/satyaidk/MochiEyes/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/satyaidk/MochiEyes/releases/tag/v1.0.0
+[Unreleased]: https://github.com/satyaidk/OvoEyes/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/satyaidk/OvoEyes/releases/tag/v1.0.0

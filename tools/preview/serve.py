@@ -2,7 +2,7 @@
 """Preview the controller page on a PC, without a device.
 
 Serves web/index.html and imitates the firmware's JSON API (same routes and
-fields as MochiEyes.ino), so you can work on the page with a fast edit-reload
+fields as OvoEyes.ino), so you can work on the page with a fast edit-reload
 loop. The live mirror plays frames rendered by the real eye engine
 (tools/preview/frames.cpp); without them it shows a still test pattern.
 
@@ -25,14 +25,14 @@ STATE = {
     "eye": {"mood": "calm", "expr": "neutral", "state": "eye contact", "react": "none",
             "sleeping": False, "drowsy": False, "demo": False},
     "time": {"synced": True, "hhmm": "", "date": ""},
-    "wifi": {"ap": False, "ssid": "Home 2.4G", "ip": "192.168.1.42", "rssi": -58, "up": True, "host": "mochi.local"},
+    "wifi": {"ap": False, "ssid": "Home 2.4G", "ip": "192.168.1.42", "rssi": -58, "up": True, "host": "ovo.local"},
     "oled": {"ok": True, "sda": 20, "scl": 21, "addr": 60},
     "weather": {"ok": True, "city": "Bengaluru", "temp": 24.6, "unit": "C", "word": "Part cloudy", "hum": 71, "min": 20, "max": 29},
     "coins": [{"tag": "BTC", "ok": True, "usd": "64210", "chg": 1.4},
               {"tag": "ETH", "ok": True, "usd": "3120", "chg": -0.8},
               {"tag": "SOL", "ok": True, "usd": "148.22", "chg": 3.1}],
     "fetching": False,
-    "note": {"title": "Notes", "text": "Tap the pad to change pages.\n\nOpen http://mochi.local\nto write here."},
+    "note": {"title": "Notes", "text": "Tap the pad to change pages.\n\nOpen http://ovo.local\nto write here."},
     "settings": {"sound": True, "autosleep": True, "start": "eyes"},
     "sys": {"uptime": 0, "heap": 171000, "minHeap": 148000, "fps": 35.2, "fetchStackFree": 5200},
 }
@@ -132,7 +132,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Preview the MochiEyes web page without a device.")
+    ap = argparse.ArgumentParser(description="Preview the OvoEyes web page without a device.")
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--frames", default=str(ROOT / "build" / "frames.bin"))
     args = ap.parse_args()
@@ -143,7 +143,7 @@ def main():
     if not FRAMES:
         print(f"no frames at {p}; showing a test pattern (see tools/preview/frames.cpp)")
         FRAMES.append(test_pattern())
-    print(f"MochiEyes preview on http://127.0.0.1:{args.port}  ({len(FRAMES)} frames)")
+    print(f"OvoEyes preview on http://127.0.0.1:{args.port}  ({len(FRAMES)} frames)")
     ThreadingHTTPServer(("127.0.0.1", args.port), Handler).serve_forever()
 
 

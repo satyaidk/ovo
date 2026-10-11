@@ -44,7 +44,7 @@ holds, the mode hold, glitches, dropouts, tap saturation and the 49-day
 - A single tap costs `tapGapMs` (320 ms) of latency, the price of supporting
   double taps. The `Press` event fires immediately so the eyes can react at
   once (they widen slightly) while the gesture resolves.
-- `MochiEyes.ino` only maps events to actions, which keeps the behaviour easy to
+- `OvoEyes.ino` only maps events to actions, which keeps the behaviour easy to
   read: `onEyesGesture()` and `onClockGesture()`.
 
 ## Alternatives considered

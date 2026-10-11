@@ -5,7 +5,7 @@
 // device. The engine is Arduino-free C++, so these are the pixels the ESP32 draws.
 //
 // Build from the repository root:
-//   F=firmware/MochiEyes
+//   F=firmware/OvoEyes
 //   g++ -std=c++17 -O2 -I$F tools/preview/frames.cpp $F/src/eye/EyeEngine.cpp $F/src/eye/EyeRenderer.cpp -o build/frames
 //   ./build/frames build/frames.bin 20 30      # 20 fps, 30 seconds
 #include <cstdio>
@@ -22,15 +22,15 @@ int main(int argc, char** argv) {
 
   eye::EyeEngine engine;
   eye::EyeRenderer renderer;
-  renderer.setGeometry(eye::mochiGeometry());
+  renderer.setGeometry(eye::ovoGeometry());
   engine.begin(20261011u, 0);  // fixed seed: same frames on every run
 
   std::vector<uint8_t> fb(eye::kFrameBytes);
   FILE* f = fopen(out, "wb");
   if (!f) { perror(out); return 1; }
 
-  // A scripted minute in Mochi's life, using the same engine calls the
-  // firmware's touch reactions make (see startReaction() in firmware/MochiEyes/MochiEyes.ino).
+  // A scripted minute in Ovo's life, using the same engine calls the
+  // firmware's touch reactions make (see startReaction() in firmware/OvoEyes/OvoEyes.ino).
   for (int i = 0; i < fps * secs; ++i) {
     const uint32_t t = (uint32_t)((long long)i * 1000 / fps);
     const float s = (float)t / 1000.0f;

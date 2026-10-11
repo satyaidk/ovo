@@ -1,4 +1,4 @@
-# MochiEyes design
+# OvoEyes design
 
 This document explains how the firmware is put together and why. For the
 individual decisions see the ADRs listed at the end; for the HTTP interface
@@ -26,7 +26,7 @@ flowchart LR
     W[Browser<br/>web controller]
     S[Serial Monitor]
   end
-  subgraph Firmware["MochiEyes.ino (loop task)"]
+  subgraph Firmware["OvoEyes.ino (loop task)"]
     G[TouchGestures<br/>src/touch]
     C[runCommand<br/>one command language]
     R[Reactions + idle<br/>base mood / face]
@@ -63,7 +63,7 @@ downloaded weather and prices, behind a mutex.
 
 ### Layers
 
-Paths are relative to `firmware/MochiEyes/`, the folder that is flashed.
+Paths are relative to `firmware/OvoEyes/`, the folder that is flashed.
 
 | Layer | Files | Depends on Arduino? | Tested on PC? |
 | ----- | ----- | ------------------- | ------------- |
@@ -72,7 +72,7 @@ Paths are relative to `firmware/MochiEyes/`, the folder that is flashed.
 | Text commands | `src/eye/EyeCommands.*` | No | Not yet |
 | Touch gestures | `src/touch/TouchGestures.h` | No | 48 checks, 100% line coverage |
 | Controller page | `web/index.html` | No | Previewed with a mock API (`tools/preview/serve.py`) |
-| Wiring, modes, network, web API | `MochiEyes.ino` | Yes | On hardware |
+| Wiring, modes, network, web API | `OvoEyes.ino` | Yes | On hardware |
 
 ## The main loop
 
@@ -170,9 +170,9 @@ Measured with arduino-cli, ESP32 core 3.3.12, `esp32c3`,
 
 | Item | Size |
 | ---- | ---- |
-| Firmware (flash) | 1,351,175 of 1,966,080 bytes (68%) |
+| Firmware (flash) | 1,351,167 of 1,966,080 bytes (68%) |
 | Static RAM (globals) | 47,648 of 327,680 bytes (14%) |
-| Web page in flash | 13,238 bytes (gzipped from 39,339) |
+| Web page in flash | 13,235 bytes (gzipped from 39,297) |
 | Frame buffer | 1,024 bytes (heap) |
 | Fetch task stack | 12,288 bytes (heap) |
 

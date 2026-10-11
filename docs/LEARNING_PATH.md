@@ -1,7 +1,7 @@
 # Learning path
 
 A guided route through the code for someone new to embedded C++. Paths
-starting with `src/` or `MochiEyes.ino` are inside `firmware/MochiEyes/`. Each step
+starting with `src/` or `OvoEyes.ino` are inside `firmware/OvoEyes/`. Each step
 names the files to read, what to look for, and a small exercise to make the
 idea stick. Plan for a weekend; steps 1 to 4 need no hardware.
 
@@ -35,7 +35,7 @@ Arduino, which is why both also compile on a PC.
 mirror:
 
 ```sh
-F=firmware/MochiEyes
+F=firmware/OvoEyes
 g++ -std=c++17 -O2 -I$F tools/preview/frames.cpp $F/src/eye/EyeEngine.cpp $F/src/eye/EyeRenderer.cpp -o build/frames
 ./build/frames build/frames.bin 20 30
 python tools/preview/serve.py      # http://127.0.0.1:8000
@@ -57,7 +57,7 @@ press comes 400 ms after the second). Predict the result before you run it.
 
 ## Step 4: The web page and its API
 
-**Read:** `docs/API.md`, then the `/* ---- talking to Mochi ---- */` and
+**Read:** `docs/API.md`, then the `/* ---- talking to Ovo ---- */` and
 `/* ---- state ---- */` sections of `web/index.html`.
 
 The page is static. Everything live comes from `GET /api/state` every 2
@@ -70,7 +70,7 @@ change.
 
 ## Step 5: Reading the sketch top to bottom
 
-**Read:** `MochiEyes.ino`. The banner comments divide it into sections in
+**Read:** `OvoEyes.ino`. One-line `// ---- Section ----` markers divide it into sections in
 dependency order: types, globals, time, sound, display, storage, network,
 reactions, clock pages, drawing, overlays, modes, touch, commands, web
 server, setup and loop.

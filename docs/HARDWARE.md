@@ -43,7 +43,7 @@ the same OLED pins, so merging needed no rewiring.
 
 Mount the touch pad on the **left** side as you face the screen: a single tap
 makes the eyes glance towards it. If yours is on the right, set
-`TOUCH_SIDE` to `+1` in `MochiEyes.ino`.
+`TOUCH_SIDE` to `+1` in `OvoEyes.ino`.
 
 ## Pin notes
 

@@ -6,7 +6,7 @@ labels: enhancement
 
 ## The idea
 
-<!-- What should Mochi do? Describe it from the point of view of someone using it. -->
+<!-- What should Ovo do? Describe it from the point of view of someone using it. -->
 
 ## Why it would help
 

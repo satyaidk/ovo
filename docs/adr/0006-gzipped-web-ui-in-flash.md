@@ -26,7 +26,7 @@ JavaScript for the gaze pad and live mirror) of about 39 KB.
 
 ## Consequences
 
-- Measured: 39,339 bytes of HTML become 13,238 bytes in flash (34%).
+- Measured: 39,297 bytes of HTML become 13,235 bytes in flash (34%).
 - Serving the page allocates no heap: `send_P` streams it from flash.
 - Fonts (Shippori Mincho B1, Zen Kaku Gothic New) load from Google Fonts when
   the phone has internet. In hotspot mode they cannot load, and the page falls

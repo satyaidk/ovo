@@ -1,12 +1,12 @@
 <div align="center">
 
-<img src="docs/images/logo.svg" alt="MochiEyes logo" width="112">
+<img src="docs/images/logo.svg" alt="OvoEyes logo" width="112">
 
-# MochiEyes
+# OvoEyes
 
 **A desk companion for the ESP32-C3: lifelike eyes that react to touch, and a clock, weather and prices terminal, on one 128×64 OLED.**
 
-[![CI](https://github.com/satyaidk/MochiEyes/actions/workflows/ci.yml/badge.svg)](https://github.com/satyaidk/MochiEyes/actions/workflows/ci.yml)
+[![CI](https://github.com/satyaidk/OvoEyes/actions/workflows/ci.yml/badge.svg)](https://github.com/satyaidk/OvoEyes/actions/workflows/ci.yml)
 [![Platform](https://img.shields.io/badge/platform-ESP32--C3-c13b27)](docs/HARDWARE.md)
 [![Arduino core](https://img.shields.io/badge/arduino--esp32-3.3.12-132139)](https://github.com/espressif/arduino-esp32)
 [![C++](https://img.shields.io/badge/C%2B%2B-17-132139)](tests/host/test_touch.cpp)
@@ -15,7 +15,7 @@
 
 [Getting started](#getting-started) · [Usage](#usage) · [Architecture](#architecture) · [Design](docs/DESIGN.md) · [API](docs/API.md) · [Learning path](docs/LEARNING_PATH.md)
 
-<img src="docs/images/eyes.gif" alt="The Mochi eyes on the OLED: glancing toward the touch pad, smiling, then a grumpy glare" width="384">
+<img src="docs/images/eyes.gif" alt="The Ovo eyes on the OLED: glancing toward the touch pad, smiling, then a grumpy glare" width="384">
 
 <sub>Frames rendered by the firmware's own eye engine (<code>tools/preview/frames.cpp</code>), shown at 3× scale.</sub>
 
@@ -23,7 +23,7 @@
 
 ## Overview
 
-MochiEyes turns an ESP32-C3 SuperMini, an SSD1306 OLED, a touch pad and a
+OvoEyes turns an ESP32-C3 SuperMini, an SSD1306 OLED, a touch pad and a
 buzzer into a small character that lives on a desk. Most of the time the
 screen shows a pair of eyes driven by a behaviour engine modelled on human eye
 movement data: saccades, blinks, microsaccades and moods. Touch the pad and
@@ -68,7 +68,7 @@ network.
 
 Screenshots of the real page served by `tools/preview/serve.py`, with the
 mirror playing frames from the eye engine. On the device, the same page is
-served from flash at `http://mochi.local`.
+served from flash at `http://ovo.local`.
 
 ## Architecture
 
@@ -92,7 +92,7 @@ flowchart LR
 | Eye behaviour and drawing | `src/eye/` | Arduino-free C++; also runs on a PC |
 | Touch gestures | `src/touch/` | Arduino-free, unit-tested |
 | Controller page | `web/index.html` → `src/web/WebUi.h` | Embedded gzipped |
-| Hardware, modes, network, web API | `MochiEyes.ino` | The application, in one file |
+| Hardware, modes, network, web API | `OvoEyes.ino` | The application, in one file |
 
 The loop task owns the display, touch, engine and web server; a second
 FreeRTOS task does the HTTPS requests and hands results over through a mutex.
@@ -112,18 +112,18 @@ Details: [docs/DESIGN.md](docs/DESIGN.md).
 ### Install
 
 ```sh
-git clone https://github.com/satyaidk/MochiEyes.git
+git clone https://github.com/satyaidk/OvoEyes.git
 ```
 
-Everything that is flashed lives in **`firmware/MochiEyes/`**. Open
-`firmware/MochiEyes/MochiEyes.ino` in the Arduino IDE; nothing outside that
+Everything that is flashed lives in **`firmware/OvoEyes/`**. Open
+`firmware/OvoEyes/OvoEyes.ino` in the Arduino IDE; nothing outside that
 folder goes onto the board.
 
 ### Configure
 
-1. In `firmware/MochiEyes/`, copy `secrets.example.h` to `secrets.h` and set
+1. In `firmware/OvoEyes/`, copy `secrets.example.h` to `secrets.h` and set
    your 2.4 GHz Wi-Fi name and password. `secrets.h` is git-ignored.
-2. Optional, at the top of `MochiEyes.ino`: `TZ_STRING` (time zone),
+2. Optional, at the top of `OvoEyes.ino`: `TZ_STRING` (time zone),
    `OWNER_NAME` (greeting), `TOUCH_SIDE` (`-1` if the pad is on the left as
    you face the screen, `+1` if on the right).
 
@@ -145,7 +145,7 @@ Or from the command line:
 
 ```sh
 arduino-cli compile --upload -p COM5 \
-  --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs firmware/MochiEyes
+  --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc,PartitionScheme=min_spiffs firmware/OvoEyes
 ```
 
 On boot you hear one beep (alive), a second (OLED found) and a high beep
@@ -168,18 +168,18 @@ address. If Wi-Fi fails, the device opens a hotspot named **Kitty**
 
 ### From a browser
 
-Open `http://mochi.local` (or the IP shown at boot). Drag inside the ensō to
-point the gaze; let go and Mochi looks around on its own. Choose a mood or a
+Open `http://ovo.local` (or the IP shown at boot). Drag inside the ensō to
+point the gaze; let go and Ovo looks around on its own. Choose a mood or a
 face, try the touch gestures, pick a clock page, send a note, and change
 settings. Settings are saved on the device.
 
 ### From scripts or the Serial Monitor
 
 ```sh
-curl -d "cmd=mood curious" http://mochi.local/api/eye
-curl -d "cmd=gesture 2"    http://mochi.local/api/eye
-curl -d "m=clock"          http://mochi.local/api/mode
-curl http://mochi.local/api/state
+curl -d "cmd=mood curious" http://ovo.local/api/eye
+curl -d "cmd=gesture 2"    http://ovo.local/api/eye
+curl -d "m=clock"          http://ovo.local/api/mode
+curl http://ovo.local/api/state
 ```
 
 The same commands work in the Serial Monitor at 115200 baud (type `help`).
@@ -188,9 +188,9 @@ Full reference: [docs/API.md](docs/API.md).
 ## Project structure
 
 ```
-MochiEyes/
-├── firmware/MochiEyes/          # everything that gets flashed: open MochiEyes.ino from here
-│   ├── MochiEyes.ino            # the application: hardware, modes, reactions, network, web API
+OvoEyes/
+├── firmware/OvoEyes/          # everything that gets flashed: open OvoEyes.ino from here
+│   ├── OvoEyes.ino            # the application: hardware, modes, reactions, network, web API
 │   ├── secrets.h                # your Wi-Fi (git-ignored; create from secrets.example.h)
 │   ├── secrets.example.h        # credential template
 │   └── src/
@@ -208,7 +208,7 @@ MochiEyes/
 └── .github/                     # CI workflow, issue and pull request templates
 ```
 
-Only `firmware/MochiEyes/` goes onto the ESP32. Everything else is
+Only `firmware/OvoEyes/` goes onto the ESP32. Everything else is
 documentation, tests and development tools.
 
 ## Testing & quality
@@ -226,7 +226,7 @@ Run the host tests locally:
 
 ```sh
 cd tests/host
-g++ -std=c++11 -Wall -Wextra -Werror -I../../firmware/MochiEyes test_touch.cpp -o test_touch && ./test_touch
+g++ -std=c++11 -Wall -Wextra -Werror -I../../firmware/OvoEyes test_touch.cpp -o test_touch && ./test_touch
 ```
 
 Coverage covers the touch module only. The rest of the firmware is verified
@@ -243,15 +243,15 @@ with USB CDC on boot enabled.
 | ----- | --------- | ----- | ------------- |
 | Original `clock.ino` | Default (1,310,720 B) | 1,274,489 B (97%) | 41,952 B (12%) |
 | Original eyes-only sketch (U8g2) | Default | 378,334 B (28%) | 21,964 B (6%) |
-| **MochiEyes 1.0.0** | Default | 1,351,143 B (103%): does not fit | 47,648 B |
-| **MochiEyes 1.0.0** | Minimal SPIFFS (1,966,080 B) | **1,351,175 B (68%)** | **47,648 B (14%)** |
+| **OvoEyes 1.0.0** | Default | 1,351,135 B (103%): does not fit | 47,648 B |
+| **OvoEyes 1.0.0** | Minimal SPIFFS (1,966,080 B) | **1,351,167 B (68%)** | **47,648 B (14%)** |
 
 **Web page**
 
 | Item | Size |
 | ---- | ---- |
-| `web/index.html` | 39,339 bytes |
-| Embedded in flash (gzip level 9) | 13,238 bytes (34%) |
+| `web/index.html` | 39,297 bytes |
+| Embedded in flash (gzip level 9) | 13,235 bytes (34%) |
 
 **Not yet measured on hardware.** Frame rate, free heap and the fetch task's
 stack headroom are reported live by the device (`/api/state` → `sys`, and the

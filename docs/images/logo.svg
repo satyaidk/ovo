@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="MochiEyes logo: a vermilion seal with two eyes">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="OvoEyes logo: a vermilion seal with two eyes">
   <defs>
-    <!-- Mochi eye: a round eye cut flat by the upper lid -->
+    <!-- Ovo eye: a round eye cut flat by the upper lid -->
     <clipPath id="lidL"><polygon points="20,54.5 58,53.5 58,90 20,90"/></clipPath>
     <clipPath id="irisL"><circle cx="41.5" cy="66" r="10"/></clipPath>
     <clipPath id="lidR"><polygon points="100,54.5 62,53.5 62,90 100,90"/></clipPath>

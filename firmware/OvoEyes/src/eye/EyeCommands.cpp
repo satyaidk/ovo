@@ -103,8 +103,8 @@ bool EyeCommands::execute(const char* line, char* out, size_t outLen) {
     snprintf(out, outLen, "ok wake");
   } else if (eq(c, "style") && n >= 2) {
     if (eq(t[1], "human")) r_.setGeometry(humanGeometry());
-    else if (eq(t[1], "mochi")) r_.setGeometry(mochiGeometry());
-    else { snprintf(out, outLen, "err style: human|mochi"); return false; }
+    else if (eq(t[1], "ovo")) r_.setGeometry(ovoGeometry());
+    else { snprintf(out, outLen, "err style: human|ovo"); return false; }
     snprintf(out, outLen, "ok style %s", t[1]);
   } else if (eq(c, "feature") && n >= 3 && num(t[2], a)) {
     const bool on = a != 0;
@@ -131,7 +131,7 @@ bool EyeCommands::execute(const char* line, char* out, size_t outLen) {
   } else if (eq(c, "help")) {
     snprintf(out, outLen,
              "look y p | lookn x y | auto | mood m | expr e | blink | pause | light v | arousal v | near cm | "
-             "user y p | startle y p | sleep | wake | style human|mochi | feature f 0|1 | status");
+             "user y p | startle y p | sleep | wake | style human|ovo | feature f 0|1 | status");
   } else {
     snprintf(out, outLen, "? unknown or incomplete command (try: help)");
     return false;
