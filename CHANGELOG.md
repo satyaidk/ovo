@@ -29,13 +29,16 @@ First release of the merged firmware. It combines the info terminal
 - Settings saved on the device: sound, auto-sleep, and which face to show after
   a restart.
 - `src/touch/TouchGestures.h`, an Arduino-free tap and hold recognizer with
-  44 host-test checks.
+  48 host-test checks.
 - Tools: `tools/embed_web.py` (gzips the page into the firmware),
-  `tools/preview/` (preview the page and render eye frames on a PC).
+  `tools/preview/` (preview the page with eye frames rendered on a PC).
 - CI that compiles the firmware, runs host tests, and checks the embedded page.
 
 ### Changed
 
+- Everything that is flashed now lives in one folder, `firmware/MochiEyes/`;
+  docs, tests and tools sit outside it. The two original sketches were removed
+  after merging.
 - Weather and price downloads run in a FreeRTOS task, so the eyes keep moving
   during HTTPS requests.
 - The eyes now render into the Adafruit SSD1306 buffer instead of U8g2, so one

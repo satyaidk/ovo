@@ -34,14 +34,11 @@ jobs:
           arduino-cli core install esp32:esp32@3.3.12 --additional-urls "$ESP32_INDEX"
           arduino-cli lib install "Adafruit SSD1306@2.5.17" "Adafruit GFX Library@1.12.6" "ArduinoJson@7.4.3"
 
-      # arduino-cli requires the folder to be named after the .ino, whatever the
-      # repository is called. secrets.h is absent here, so this also proves the
-      # firmware builds from secrets.example.h alone.
+      # secrets.h is git-ignored, so this also proves the firmware builds from
+      # secrets.example.h alone.
       - name: Compile
         run: |
-          mkdir -p "$RUNNER_TEMP/MochiEyes"
-          cp -r MochiEyes.ino secrets.example.h src "$RUNNER_TEMP/MochiEyes/"
-          arduino-cli compile --fqbn "$FQBN" --warnings all "$RUNNER_TEMP/MochiEyes" 2>&1 | tee build.log
+          arduino-cli compile --fqbn "$FQBN" --warnings all firmware/MochiEyes 2>&1 | tee build.log
           grep -E "Sketch uses|Global variables" build.log >> "$GITHUB_STEP_SUMMARY"
 
   host-tests:
@@ -53,14 +50,15 @@ jobs:
       - name: Touch gesture tests (with coverage)
         working-directory: tests/host
         run: |
-          g++ -std=c++11 -O0 -Wall -Wextra -Werror --coverage -I../.. test_touch.cpp -o test_touch
-          ./test_touch
-          gcov test_touch-test_touch.gcda | grep -A1 "TouchGestures.h'" | tee -a "$GITHUB_STEP_SUMMARY"
+          g++ -std=c++11 -O0 -Wall -Wextra -Werror --coverage -I../../firmware/MochiEyes test_touch.cpp -o touch_tests
+          ./touch_tests
+          gcov touch_tests-test_touch.gcda | grep -A1 "TouchGestures.h'" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Eye engine builds and renders on a PC
         run: |
           mkdir -p build
-          g++ -std=c++17 -O2 -Wall -Wextra -I. tools/preview/frames.cpp src/eye/EyeEngine.cpp src/eye/EyeRenderer.cpp -o build/frames
+          F=firmware/MochiEyes
+          g++ -std=c++17 -O2 -Wall -Wextra -I$F tools/preview/frames.cpp $F/src/eye/EyeEngine.cpp $F/src/eye/EyeRenderer.cpp -o build/frames
           ./build/frames build/frames.bin 20 5
           test "$(stat -c %s build/frames.bin)" -eq $((100 * 1024))
 
@@ -72,5 +70,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: src/web/WebUi.h matches web/index.html
+      - name: Embedded WebUi.h matches web/index.html
         run: python tools/embed_web.py --check

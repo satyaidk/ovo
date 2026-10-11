@@ -1,9 +1,5 @@
-# Private credentials (template: secrets.example.h)
+# Private credentials (template: firmware/MochiEyes/secrets.example.h)
 secrets.h
-
-# The two sketches this firmware was merged from. Kept locally for
-# reference; clock.ino contained a real Wi-Fi password.
-legacy/
 
 # Host builds, rendered frames, preview output
 build/

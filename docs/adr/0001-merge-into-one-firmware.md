@@ -20,8 +20,11 @@ so the two files could not simply sit side by side: both define `setup()` and
 Build one firmware, `MochiEyes.ino`, with two *faces* (eyes and clock) and a
 5-second touch hold to switch. The clock code keeps its behaviour and its
 storage namespace (`terminal`), so a saved note and Wi-Fi details survive the
-upgrade. The original sketches are kept, untouched, in `legacy/`, which
-`.gitignore` excludes (one of them contained a real Wi-Fi password).
+upgrade. The original sketches were removed once their behaviour was merged
+(one of them also contained a real Wi-Fi password).
+
+Everything that is flashed lives in one folder, `firmware/MochiEyes/`, so it
+is obvious what goes onto the board; docs, tests and tools sit outside it.
 
 The application stays in a single `.ino` as requested; only code with a clear
 reason to be separate lives elsewhere:
@@ -37,9 +40,9 @@ reason to be separate lives elsewhere:
 - One flash, one web page, one command language for everything.
 - The combined program no longer fits the default partition
   ([ADR 0004](0004-minimal-spiffs-partition.md)).
-- `MochiEyes.ino` is long (about 1,600 lines). Its sections follow the order
+- `MochiEyes.ino` is long (about 1,500 lines). Its sections follow the order
   hardware, data, behaviour, rendering, input, web, setup/loop, and every
-  section starts with a banner comment, so it can be read top to bottom.
+  section starts with a one-line marker, so it can be read top to bottom.
 
 ## Alternatives considered
 

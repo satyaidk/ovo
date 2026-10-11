@@ -1,11 +1,11 @@
-// test_touch.cpp - host unit tests for src/touch/TouchGestures.h.
+// test_touch.cpp - host unit tests for firmware/MochiEyes/src/touch/TouchGestures.h.
 //
 // Each test describes a touch timeline as (level, duration) segments, plays
 // it through the recognizer in 1 ms steps exactly like loop() would, and
 // checks the events that came out.
 //
 // Build and run (any C++11 compiler):
-//   g++ -std=c++11 -Wall -Wextra -I../.. test_touch.cpp -o test_touch && ./test_touch
+//   g++ -std=c++11 -Wall -Wextra -I../../firmware/MochiEyes test_touch.cpp -o test_touch && ./test_touch
 #include <cstdio>
 #include <string>
 #include <vector>

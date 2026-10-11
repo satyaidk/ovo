@@ -63,12 +63,14 @@ downloaded weather and prices, behind a mutex.
 
 ### Layers
 
+Paths are relative to `firmware/MochiEyes/`, the folder that is flashed.
+
 | Layer | Files | Depends on Arduino? | Tested on PC? |
 | ----- | ----- | ------------------- | ------------- |
 | Eye behaviour (where to look, blinks, moods) | `src/eye/EyeEngine.*`, `BehaviorParams.h` | No | Builds and renders frames (`tools/preview/frames.cpp`) |
 | Eye drawing (pixels into the buffer) | `src/eye/EyeRenderer.*`, `EyeGeometry.h` | No | Same |
 | Text commands | `src/eye/EyeCommands.*` | No | Not yet |
-| Touch gestures | `src/touch/TouchGestures.h` | No | 44 checks, 100% line coverage |
+| Touch gestures | `src/touch/TouchGestures.h` | No | 48 checks, 100% line coverage |
 | Controller page | `web/index.html` | No | Previewed with a mock API (`tools/preview/serve.py`) |
 | Wiring, modes, network, web API | `MochiEyes.ino` | Yes | On hardware |
 

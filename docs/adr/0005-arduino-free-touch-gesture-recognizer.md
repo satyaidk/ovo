@@ -39,8 +39,8 @@ holds, the mode hold, glitches, dropouts, tap saturation and the 49-day
 
 ## Consequences
 
-- Measured: 44 checks pass and gcov reports 100% line coverage of
-  `TouchGestures.h` (40 of 40 lines).
+- Measured: 48 checks pass and gcov reports 100% line coverage of
+  `TouchGestures.h` (42 of 42 lines).
 - A single tap costs `tapGapMs` (320 ms) of latency, the price of supporting
   double taps. The `Press` event fires immediately so the eyes can react at
   once (they widen slightly) while the gesture resolves.
