@@ -1,41 +1,11 @@
-/* =============================================================================
-   MochiEyes  -  a desk companion for the ESP32-C3 SuperMini
-   -----------------------------------------------------------------------------
-   One firmware, two faces on a 128x64 SSD1306 OLED:
-
-     EYES   the "Mochi" eyes, driven by the human-data eye engine in src/eye/.
-            They react to the touch pad: 1 tap looks at the pad, 2 taps smile,
-            3 taps get grumpy, 4+ taps get dizzy, holding the pad is petting.
-            Left alone they get drowsy, then fall asleep; a tap wakes them.
-     CLOCK  the info terminal: clock, weather, crypto prices and a note page.
-            1 tap = next page, 2 taps = previous page, 3 taps = clock face,
-            hold 1.5 s and let go = refresh weather and prices.
-
-   Hold the pad for 5 seconds (a progress bar appears) to switch faces.
-   Everything can also be driven from the web page at http://mochi.local and
-   from the Serial Monitor (115200 baud, type "help").
-
-   This sketch merges two earlier programs (kept in legacy/): clock.ino, the
-   info terminal, and the eyes-only MochiEyes.ino. Their pin maps agreed, so
-   the clock's pin map is used unchanged (see PIN MAP below).
-
-   Layering (why the files are split the way they are):
-     src/eye/           behaviour + rendering of the eyes, Arduino-free C++
-     src/touch/         tap/hold recognizer, Arduino-free, unit-tested on a PC
-     src/web/WebUi.h    the controller web page (HTML/CSS/JS in flash)
-     MochiEyes.ino      wiring: hardware, modes, network, web API (this file)
-
-   Board settings (Arduino IDE > Tools):
-     Board            : ESP32C3 Dev Module (works for the SuperMini)
-     USB CDC On Boot  : Enabled       <- GPIO20/21 are the OLED, not UART0
-     Partition Scheme : Minimal SPIFFS (1.9MB APP with OTA/128KB SPIFFS)
-                        <- REQUIRED: the firmware is larger than the
-                           default 1.2 MB app partition
-     Flash Mode       : QIO (DIO if your board fails to boot)
-
-   Libraries: Adafruit SSD1306, Adafruit GFX, ArduinoJson v7
-   Credentials: copy secrets.example.h to secrets.h and edit it.
-   ============================================================================= */
+// MochiEyes - eyes + clock desk companion for the ESP32-C3 SuperMini.
+//
+// Arduino IDE > Tools:
+//   Board            ESP32C3 Dev Module
+//   USB CDC On Boot  Enabled   (GPIO20/21 drive the OLED, not UART0)
+//   Partition Scheme Minimal SPIFFS (1.9MB APP with OTA/128KB SPIFFS)   <- required
+// Libraries: Adafruit SSD1306, Adafruit GFX, ArduinoJson 7
+// Wi-Fi: copy secrets.example.h to secrets.h and edit it.
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -60,46 +30,39 @@
 #if __has_include("secrets.h")
   #include "secrets.h"
 #else
-  #include "secrets.example.h"   // placeholders: device falls back to its hotspot
+  #include "secrets.example.h"
 #endif
 
-/* ------------------------------ PIN MAP ------------------------------------ */
-// Taken from clock.ino, where each pin was confirmed on the real board.
-// The old eyes-only sketch used the same SDA/SCL, so nothing had to move.
-#define PIN_SDA        20     // OLED SDA  (I2C scanner: answers at 0x3C)
-#define PIN_SCL        21     // OLED SCL
-#define PIN_TOUCH       1     // TTP223-style pad, HIGH while touched
-#define PIN_BUZZER      2     // passive buzzer (GPIO2 is a strapping pin, keep
-                              // it free of strong pull-downs at power-on)
+// ---- Pins ----
+#define PIN_SDA     20
+#define PIN_SCL     21
+#define PIN_TOUCH    1   // TTP223, HIGH while touched
+#define PIN_BUZZER   2   // passive buzzer
 
-#define I2C_AUTODETECT  true      // sweep other pins if the ones above fail
-#define I2C_HZ          400000UL  // 1 KB frame in ~25 ms; try 800000 if your OLED copes
+#define I2C_AUTODETECT true      // search other pins if the OLED is not on SDA/SCL
+#define I2C_HZ         400000UL
 
-/* ------------------------------ SETTINGS ----------------------------------- */
-#define OWNER_NAME   "Kitty"          // greeting on the boot screen and web page
-#define MDNS_NAME    "mochi"          // -> http://mochi.local
-#define TZ_STRING    "IST-5:30"       // India. POSIX sign is inverted.
+// ---- Settings ----
+#define OWNER_NAME   "Kitty"
+#define MDNS_NAME    "mochi"     // http://mochi.local
+#define TZ_STRING    "IST-5:30"  // POSIX sign is inverted
 #define UNITS_METRIC true
-
-// The touch pad sits on the LEFT of the device as you face the screen, so a
-// single tap makes the eyes glance to screen-left. Set to +1 if yours is on
-// the right.
-#define TOUCH_SIDE   (-1)
+#define TOUCH_SIDE   (-1)        // pad on the left as you face the screen; +1 if on the right
 
 #define EYE_MAX_FPS           45
 #define CLOCK_REDRAW_MS       250
 #define WEATHER_REFRESH_MS    (15UL * 60UL * 1000UL)
-#define CRYPTO_REFRESH_MS     (60UL * 1000UL)          // while the clock is shown
+#define CRYPTO_REFRESH_MS     (60UL * 1000UL)
 #define CRYPTO_IDLE_MS        (10UL * 60UL * 1000UL)   // while the eyes are shown
-#define FETCH_RETRY_MS        (30UL * 1000UL)          // after a failed request
+#define FETCH_RETRY_MS        (30UL * 1000UL)
 #define NOTE_PAGE_MS          (5UL * 1000UL)
-#define IDLE_DROWSY_MS        (2UL * 60UL * 1000UL)    // auto-sleep: drowsy after 2 min alone
-#define IDLE_SLEEP_MS         (5UL * 60UL * 1000UL)    // ...asleep after 5 min
-#define REFRESH_HOLD_MS       1500                     // clock: hold this long, release = refresh
-#define HOLD_BAR_FROM_MS      900                      // clock: hold progress bar appears after this
-#define HOLD_BAR_EYES_FROM_MS 1800                     // eyes: later, so a short pet stays clean
+#define IDLE_DROWSY_MS        (2UL * 60UL * 1000UL)
+#define IDLE_SLEEP_MS         (5UL * 60UL * 1000UL)
+#define REFRESH_HOLD_MS       1500
+#define HOLD_BAR_FROM_MS      900
+#define HOLD_BAR_EYES_FROM_MS 1800
 
-/* ---- Serial guard: do not start Serial if it would steal the I2C pins ----- */
+// With USB CDC off, Serial would take GPIO20/21 from the OLED.
 #if ARDUINO_USB_CDC_ON_BOOT
   #define SERIAL_SAFE 1
 #else
@@ -114,15 +77,12 @@
   #define LOGLN(x)    do{}while(0)
 #endif
 
-/* ============================ TYPES ========================================= */
-// All types live up here so the Arduino prototype generator never emits a
-// function prototype that mentions a type it has not seen yet.
+// ---- Types (kept above all functions for Arduino's prototype generator) ----
 #define SCREEN_W 128
 #define SCREEN_H 64
 
-// Adafruit_SSD1306 normally allocates its frame buffer inside begin(), which
-// we only call when a panel answers. Allocating it ourselves means drawing,
-// the eye renderer and the web mirror all keep working with no OLED attached.
+// Allocates the frame buffer without a panel, so drawing and the web mirror
+// work even when no OLED is connected.
 class Oled : public Adafruit_SSD1306 {
  public:
   using Adafruit_SSD1306::Adafruit_SSD1306;
@@ -134,8 +94,6 @@ class Oled : public Adafruit_SSD1306 {
 
 enum AppMode : uint8_t { MODE_EYES = 0, MODE_CLOCK = 1 };
 enum Screen  : uint8_t { SCR_CLOCK = 0, SCR_WEATHER, SCR_CRYPTO, SCR_NOTES, SCR_COUNT };
-
-// Short-lived reactions layered on top of the user's chosen mood/expression.
 enum class React : uint8_t { None, Glance, Happy, Grumpy, Dizzy, Pet, Wake };
 
 enum Sfx : uint8_t {
@@ -143,7 +101,7 @@ enum Sfx : uint8_t {
   SFX_MODE, SFX_PAGE, SFX_TICK, SFX_REFRESH, SFX_SAVED
 };
 
-struct Note { uint16_t hz; uint16_t ms; };   // hz = 0 -> rest
+struct Note { uint16_t hz; uint16_t ms; };   // hz = 0 is a rest
 
 struct Settings {
   bool    sound     = true;
@@ -160,14 +118,14 @@ struct Weather {
 
 struct Coin { const char* id; const char* tag; float usd; float chg; bool ok; };
 
-struct Transition {           // the shoji-door wipe between the two faces
+struct Transition {
   bool     active  = false;
   bool     swapped = false;
   uint32_t t0      = 0;
   AppMode  to      = MODE_EYES;
 };
 
-/* ============================ GLOBALS ======================================= */
+// ---- Globals ----
 Oled display(SCREEN_W, SCREEN_H, &Wire, -1, I2C_HZ, I2C_HZ);
 bool    haveDisplay = false;
 uint8_t oledAddr    = 0x3C;
@@ -196,8 +154,7 @@ std::vector<String> noteLines;
 uint8_t  notePage = 0;
 uint32_t lastNoteFlip = 0;
 
-// Network data is written by the fetch task and read by the loop task, so
-// every access goes through dataLock (see DataLock below).
+// Written by fetchTask, read by the loop task: always access through DataLock.
 Weather wx;
 Coin coins[3] = {
   { "bitcoin",  "BTC", 0, 0, false },
@@ -210,19 +167,18 @@ volatile bool     fetchBusy = false, fetchForce = false;
 volatile uint32_t lastWeatherOk = 0, lastCryptoOk = 0;
 uint32_t          refreshBannerUntil = 0;
 
-// Eye personality: what the user chose (web/serial) vs. what is on screen now.
+// Base = what the user chose; reactions and idle are temporary on top of it.
 eye::Mood       baseMood = eye::Mood::Calm;
 eye::Expression baseExpr = eye::Expression::Neutral;
 React    react = React::None;
-uint32_t reactT0 = 0, reactUntil = 0;   // reactUntil == 0 -> lasts until released
+uint32_t reactT0 = 0, reactUntil = 0;   // reactUntil 0 = until released
 uint8_t  reactPhase = 0;
 uint32_t lastInteraction = 0;
-uint8_t  idleStage = 0;                 // 0 awake, 1 drowsy, 2 asleep (auto-sleep)
+uint8_t  idleStage = 0;                 // 0 awake, 1 drowsy, 2 asleep
 bool     demoOn = false;
 uint32_t demoT0 = 0, nextSpeechPause = 0;
 int      demoStep = -1;
 
-// Bottom caption over the eyes (boot status, IP address...).
 char     caption[24] = "";
 uint32_t captionUntil = 0;
 
@@ -238,8 +194,6 @@ static const char* const kMoodNames[] = {"calm", "listening", "talking", "curiou
 static const char* const kExprNames[] = {"neutral", "happy", "sad", "angry", "surprised", "sleepy", "suspicious"};
 static const char* const kScreenNames[] = {"clock", "weather", "crypto", "notes"};
 
-// Scoped lock for the shared network data. Waits at most 50 ms; callers check
-// ok() and simply skip the read if the fetch task is mid-update.
 struct DataLock {
   bool held;
   DataLock() : held(dataLock && xSemaphoreTake(dataLock, pdMS_TO_TICKS(50)) == pdTRUE) {}
@@ -247,17 +201,15 @@ struct DataLock {
   bool ok() const { return held; }
 };
 
-/* ============================ TIME ========================================== */
-// Non-blocking local time. getLocalTime() waits up to its timeout while the
-// clock is unsynced, which would stutter the eyes; this returns at once.
+// ---- Time ----
+// getLocalTime() blocks while unsynced, which would stutter the eyes.
 bool nowLocal(struct tm& t) {
   time_t now = time(nullptr);
   localtime_r(&now, &t);
   return t.tm_year > (2016 - 1900);
 }
 
-/* ============================ SOUND ========================================= */
-// A tiny non-blocking sequencer: up to 6 notes, advanced from loop().
+// ---- Sound ----
 void startNote() {
   if (melodyPos >= melodyLen) { noTone(PIN_BUZZER); melodyLen = 0; return; }
   const Note& n = melody[melodyPos];
@@ -304,13 +256,12 @@ void serviceSound() {
   if (melodyLen && (int32_t)(millis() - noteEndAt) >= 0) { melodyPos++; startNote(); }
 }
 
-// Boot-time beeps: you get feedback even with a dead screen.
 void beepBlocking(unsigned int freq, unsigned long ms) {
   if (!settings.sound) { delay(ms); return; }
   tone(PIN_BUZZER, freq); delay(ms); noTone(PIN_BUZZER);
 }
 
-/* ============================ TEXT HELPERS ================================== */
+// ---- Text helpers ----
 void centerText(const String& s, int y, uint8_t size) {
   int16_t x1, y1; uint16_t w, h;
   display.setTextSize(size);
@@ -349,7 +300,7 @@ void setCaption(const char* text, uint32_t ms) {
   captionUntil = ms ? millis() + ms : 0xFFFFFFFFu;
 }
 
-/* ============================ DISPLAY BRING-UP ============================== */
+// ---- Display ----
 bool probe(uint8_t sda, uint8_t scl, uint8_t addr) {
   Wire.end();
   delay(5);
@@ -359,19 +310,16 @@ bool probe(uint8_t sda, uint8_t scl, uint8_t addr) {
   return Wire.endTransmission() == 0;
 }
 
-// Never drive the touch or buzzer pins as I2C while searching for the panel.
 bool sweepAllowed(uint8_t p) { return p != PIN_TOUCH && p != PIN_BUZZER; }
 
 bool startDisplay() {
   const uint8_t addrs[] = {0x3C, 0x3D};
 
-  // 1. the configured pins
   for (uint8_t a : addrs) {
     if (probe(PIN_SDA, PIN_SCL, a)) { usedSda = PIN_SDA; usedScl = PIN_SCL; oledAddr = a; goto found; }
   }
   if (!I2C_AUTODETECT) return false;
 
-  // 2. common alternatives, then a full sweep
   {
     LOGLN("OLED not on configured pins, searching...");
     const uint8_t common[][2] = {{8,9},{9,8},{5,6},{6,5},{4,5},{6,7},{7,6},{10,8},{20,21},{21,20}};
@@ -409,9 +357,8 @@ found:
 
 void pushFrame() { if (haveDisplay) display.display(); }
 
-/* ============================ STORAGE ======================================= */
-// Same NVS namespace and keys as clock.ino, so a saved note and Wi-Fi survive
-// the upgrade to this firmware.
+// ---- Storage ----
+// Same namespace and keys as the old clock firmware, so saved data survives.
 void loadConfig() {
   prefs.begin("terminal", true);
   wifiSsid  = prefs.getString("ssid",  WIFI_SSID_DEFAULT);
@@ -444,12 +391,8 @@ void saveSettings() {
   prefs.end();
 }
 
-/* ============================ NETWORK FETCHES =============================== */
-// Weather and prices come from HTTPS APIs. A TLS handshake on the C3 takes
-// one to three seconds; done in loop() it froze the eyes mid-blink. So these
-// requests run in their own FreeRTOS task (fetchTask) and hand results to the
-// loop task through dataLock. The C3 has a single core: the two tasks share
-// it by time-slicing, so the eyes keep moving during a download.
+// ---- Network fetches ----
+// HTTPS handshakes take seconds; they run in fetchTask so the eyes never freeze.
 bool fetchJson(const String& url, JsonDocument& doc) {
   if (WiFi.status() != WL_CONNECTED) return false;
   int code = -1;
@@ -457,7 +400,7 @@ bool fetchJson(const String& url, JsonDocument& doc) {
 
   if (url.startsWith("https")) {
     WiFiClientSecure client;
-    client.setInsecure();   // no certificate pinning: public, read-only data
+    client.setInsecure();   // public, read-only data
     HTTPClient http;
     http.setTimeout(12000);
     http.setUserAgent("esp32-mochi");
@@ -485,7 +428,6 @@ bool fetchJson(const String& url, JsonDocument& doc) {
   return true;
 }
 
-// Location is only used inside the fetch task.
 static double geoLat = 0, geoLon = 0;
 static bool   geoValid = false;
 static String geoCity;
@@ -545,8 +487,7 @@ bool fetchCrypto(Coin out[3]) {
 void fetchTask(void*) {
   uint32_t weatherRetryAt = 0, cryptoRetryAt = 0;
   for (;;) {
-    // Sleep until asked (requestFetch) or for 5 s, then see what is due.
-    ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(5000));
+    ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(5000));   // woken by requestFetch() or every 5 s
     if (WiFi.status() != WL_CONNECTED) continue;
     const bool force = fetchForce;
     fetchForce = false;
@@ -567,7 +508,6 @@ void fetchTask(void*) {
       }
     }
 
-    // Prices move fast but nobody reads them while the eyes are on screen.
     now = millis();
     const uint32_t every = (appMode == MODE_CLOCK) ? CRYPTO_REFRESH_MS : CRYPTO_IDLE_MS;
     if (force || ((!coinsOk || now - lastCryptoOk > every) && (int32_t)(now - cryptoRetryAt) >= 0)) {
@@ -591,7 +531,7 @@ void requestFetch(bool force) {
   if (fetchTaskHandle) xTaskNotifyGive(fetchTaskHandle);
 }
 
-/* ============================ WI-FI ========================================= */
+// ---- Wi-Fi ----
 const char* wifiReason(wl_status_t s) {
   switch (s) {
     case WL_NO_SSID_AVAIL:  return "network not found (check name, and that it is 2.4GHz)";
@@ -609,7 +549,7 @@ void startAP() {
   LOG("Hotspot started: %s  ->  http://%s/\n", AP_SSID, WiFi.softAPIP().toString().c_str());
 }
 
-/* ============================ EYES: REACTIONS =============================== */
+// ---- Eyes: reactions ----
 const char* reactName(React r) {
   switch (r) {
     case React::Glance: return "glance";
@@ -622,7 +562,6 @@ const char* reactName(React r) {
   }
 }
 
-// Put back the mood and face the user chose; let the engine decide where to look.
 void restoreBase() {
   engine.setMode(eye::Mode::Auto);
   engine.setMood(baseMood);
@@ -644,33 +583,33 @@ void startReaction(React r, uint32_t durMs) {
   reactUntil = durMs ? now + durMs : 0;
   reactPhase = 0;
   switch (r) {
-    case React::Glance:   // "who touched me?" - look at the pad
+    case React::Glance:
       engine.lookAt(TOUCH_SIDE * 34.0f, -2.0f);
       engine.setArousal(0.6f);
       sfx(SFX_GLANCE);
       break;
-    case React::Happy:    // smiling squint, looking right at you
+    case React::Happy:
       engine.setExpression(eye::Expression::Happy);
       engine.lookAt(0.0f, 2.0f);
       engine.setArousal(0.8f);
       sfx(SFX_HAPPY);
       break;
-    case React::Grumpy:   // side-eye at the pad, then a glare at you
+    case React::Grumpy:
       engine.setExpression(eye::Expression::Angry);
       engine.lookAt(TOUCH_SIDE * 26.0f, -6.0f);
       sfx(SFX_GRUMPY);
       break;
-    case React::Dizzy:    // eyes roll in opposite circles (see drawEyes)
+    case React::Dizzy:   // gaze is overridden in drawEyes()
       engine.setExpression(eye::Expression::Surprised);
       sfx(SFX_DIZZY);
       break;
-    case React::Pet:      // content: heavy lids with a smile
+    case React::Pet:
       engine.setMood(eye::Mood::Sleepy);
       engine.setExpression(eye::Expression::Happy);
       engine.lookAt(0.0f, -4.0f);
       sfx(SFX_PET);
       break;
-    case React::Wake:     // groggy for a few seconds
+    case React::Wake:
       engine.setSleeping(false);
       engine.setMood(eye::Mood::Sleepy);
       sfx(SFX_WAKE);
@@ -688,14 +627,13 @@ void serviceReaction(uint32_t now) {
   }
   if (reactUntil && (int32_t)(now - reactUntil) >= 0) {
     const React done = react;
-    if (done == React::Pet) { startReaction(React::Happy, 1400); return; }  // purr -> smile
+    if (done == React::Pet) { startReaction(React::Happy, 1400); return; }
     endReaction();
-    if (done == React::Dizzy || done == React::Grumpy) engine.blinkNow();     // shake it off
+    if (done == React::Dizzy || done == React::Grumpy) engine.blinkNow();
   }
 }
 
-// Any touch or web action counts as company. Polling the page does not, so an
-// open browser tab will not keep Mochi awake forever.
+// Touches and web actions count as company; polling the page does not.
 void noteInteraction(bool wakeFromIdle) {
   lastInteraction = millis();
   if (idleStage == 1 && react == React::None) engine.setMood(baseMood);
@@ -717,9 +655,7 @@ void serviceIdle(uint32_t now) {
   }
 }
 
-/* ============================ EYES: DEMO ==================================== */
-// A showcase of the behaviours that read well on the Mochi design (toggle with
-// "demo"). Carried over from the eyes-only sketch.
+// ---- Eyes: demo ----
 void runDemo(uint32_t now) {
   struct Step { uint32_t atMs; const char* cmd; };
   static const Step steps[] = {
@@ -738,12 +674,11 @@ void runDemo(uint32_t now) {
     commands.execute(steps[demoStep].cmd, reply, sizeof reply);
     LOG("[demo] %s\n", steps[demoStep].cmd);
   }
-  // while "talking", mark phrase boundaries every ~1.5-3 s
   if (engine.mood() == eye::Mood::Talking && (int32_t)(now - nextSpeechPause) >= 0) {
     engine.speechPause();
     nextSpeechPause = now + 1500 + (uint32_t)random(1500);
   }
-  if (t > 103000) { demoT0 = now; demoStep = -1; }  // loop
+  if (t > 103000) { demoT0 = now; demoStep = -1; }
 }
 
 void setDemo(bool on) {
@@ -757,7 +692,7 @@ void setDemo(bool on) {
   }
 }
 
-/* ============================ CLOCK SCREENS ================================= */
+// ---- Clock pages ----
 const char* weatherWord(int c) {
   switch (c) {
     case 0:  return "Clear";
@@ -939,12 +874,11 @@ void drawClockMode(uint32_t now) {
   }
 }
 
-/* ============================ EYES: DRAW ==================================== */
+// ---- Eyes: drawing ----
 void drawEyes(uint32_t now) {
   engine.update(now);
   if (react == React::Dizzy) {
-    // Override the gaze for the duration: each eye orbits in the opposite
-    // direction. The engine still runs, so blinks and lids stay natural.
+    // Each eye orbits in the opposite direction; blinks and lids stay from the engine.
     eye::FaceState fs = engine.state();
     const float t = (now - reactT0) * 0.001f;
     const float span = (reactUntil - reactT0) * 0.001f;
@@ -959,7 +893,7 @@ void drawEyes(uint32_t now) {
     fs.headYawDeg = (1 - amp) * fs.headYawDeg + amp * 8.0f * sinf(w * t * 0.5f);
     renderer.render(fs, display.getBuffer());
   } else {
-    renderer.render(engine.state(), display.getBuffer());   // straight into the OLED buffer
+    renderer.render(engine.state(), display.getBuffer());
   }
 
   if (caption[0] && (int32_t)(captionUntil - now) > 0) {
@@ -969,19 +903,17 @@ void drawEyes(uint32_t now) {
   }
 }
 
-/* ============================ OVERLAYS ====================================== */
-// Shoji doors: two white paper panels with a kumiko lattice slide in from the
-// sides, meet in the middle, and slide back out on the other face.
-// closed01: 0 = fully open, 1 = closed.
+// ---- Overlays ----
+// Shoji doors between faces. closed01: 0 = open, 1 = closed.
 void drawShoji(float closed01) {
   const int w = (int)lroundf(closed01 * (SCREEN_W / 2));
   if (w <= 0) return;
   for (int side = 0; side < 2; side++) {
     const int x0 = side == 0 ? 0 : SCREEN_W - w;
-    const int lead = side == 0 ? x0 + w - 1 : x0;   // edge that moves towards the centre
-    const int dir = side == 0 ? -1 : 1;             // from the leading edge back into the panel
+    const int lead = side == 0 ? x0 + w - 1 : x0;
+    const int dir = side == 0 ? -1 : 1;
     display.fillRect(x0, 0, w, SCREEN_H, SSD1306_WHITE);
-    for (int k = 1; k <= 3; k++) {                  // vertical kumiko bars, moving with the panel
+    for (int k = 1; k <= 3; k++) {
       const int x = lead + dir * 16 * k;
       if (x >= x0 && x < x0 + w) display.drawFastVLine(x, 0, SCREEN_H, SSD1306_BLACK);
     }
@@ -989,13 +921,12 @@ void drawShoji(float closed01) {
     display.drawFastHLine(x0, 42, w, SSD1306_BLACK);
     display.drawFastHLine(x0, 0, w, SSD1306_BLACK);
     display.drawFastHLine(x0, SCREEN_H - 1, w, SSD1306_BLACK);
-    const int frameX = side == 0 ? lead - 1 : lead; // 2 px stile on the leading edge
+    const int frameX = side == 0 ? lead - 1 : lead;
     display.fillRect(frameX, 0, 2, SCREEN_H, SSD1306_BLACK);
   }
 }
 
-// While the pad is held, a bar fills towards the 5 s mode switch. In clock
-// mode a notch marks the point after which letting go refreshes the data.
+// Progress toward the 5 s mode switch; on the clock a notch marks the refresh point.
 void drawHoldBar(uint32_t now) {
   if (!gestures.pressed() || gestures.modeHoldConsumed()) return;
   const uint32_t held = gestures.heldMs(now);
@@ -1013,17 +944,17 @@ void drawHoldBar(uint32_t now) {
   }
 }
 
-/* ============================ MODES ========================================= */
+// ---- Modes ----
 void enterMode(AppMode m) {
   appMode = m;
   redrawNow = true;
   if (m == MODE_CLOCK) {
     notePage = 0;
     lastNoteFlip = millis();
-    requestFetch(false);            // the task refreshes prices if they are stale
+    requestFetch(false);
   } else {
     noteInteraction(false);
-    engine.blinkNow();              // say hello with a blink
+    engine.blinkNow();
   }
   LOG("Mode -> %s\n", m == MODE_EYES ? "eyes" : "clock");
 }
@@ -1038,9 +969,9 @@ void requestMode(AppMode m) {
   sfx(SFX_MODE);
 }
 
-/* ============================ TOUCH ========================================= */
+// ---- Touch ----
 void onEyesGesture(touch::Event e) {
-  if (demoOn && e != touch::Event::HoldEnd) setDemo(false);   // a touch takes over from the demo
+  if (demoOn && e != touch::Event::HoldEnd) setDemo(false);
   switch (e) {
     case touch::Event::Taps: {
       if (engine.sleeping()) { startReaction(React::Wake, 3000); return; }
@@ -1094,7 +1025,6 @@ void onClockGesture(touch::Event e) {
 void serviceTouch(uint32_t now) {
   const touch::Event e = gestures.update(digitalRead(PIN_TOUCH) == HIGH, now);
 
-  // Clock: a tick tells you the refresh point has been reached.
   if (appMode == MODE_CLOCK && gestures.pressed() && !refreshArmed &&
       !gestures.modeHoldConsumed() && gestures.heldMs(now) >= REFRESH_HOLD_MS) {
     refreshArmed = true;
@@ -1105,7 +1035,7 @@ void serviceTouch(uint32_t now) {
   if (e == touch::Event::Press) {
     refreshArmed = false;
     noteInteraction(false);
-    if (appMode == MODE_EYES && !engine.sleeping()) engine.setArousal(0.5f);  // eyes widen a hair
+    if (appMode == MODE_EYES && !engine.sleeping()) engine.setArousal(0.5f);
     return;
   }
   if (e == touch::Event::ModeHold) {
@@ -1113,15 +1043,12 @@ void serviceTouch(uint32_t now) {
     requestMode(appMode == MODE_EYES ? MODE_CLOCK : MODE_EYES);
     return;
   }
-  if (trans.active) return;   // ignore gestures while the doors are moving
+  if (trans.active) return;
   if (appMode == MODE_EYES) onEyesGesture(e);
   else                      onClockGesture(e);
 }
 
-/* ============================ COMMANDS ====================================== */
-// One command language for the Serial Monitor and the web page. App-level
-// commands are handled here; everything else goes to the eye engine's
-// EyeCommands (see src/eye/EyeCommands.h for that list).
+// ---- Commands (Serial and web) ----
 bool runCommand(const char* line, char* out, size_t outLen) {
   char buf[96];
   strncpy(buf, line, sizeof(buf) - 1);
@@ -1160,8 +1087,7 @@ bool runCommand(const char* line, char* out, size_t outLen) {
     return true;
   }
 
-  // Engine command: restore the base personality first so the command lands
-  // on the user's mood, then remember the result as the new base.
+  // Engine command: apply on top of the base, then remember the result as the new base.
   noteInteraction(true);
   if (demoOn) setDemo(false);
   endReaction();
@@ -1171,7 +1097,7 @@ bool runCommand(const char* line, char* out, size_t outLen) {
   return ok;
 }
 
-/* ============================ WEB SERVER ==================================== */
+// ---- Web server ----
 void sendJson(int code, JsonDocument& d) {
   String s;
   serializeJson(d, s);
@@ -1193,14 +1119,12 @@ void sendError(int code, const char* msg) {
   sendJson(code, d);
 }
 
-// The page is stored gzipped (tools/embed_web.py); the browser unpacks it.
 void handleRoot() {
   server.sendHeader("Cache-Control", "no-cache");
   server.sendHeader("Content-Encoding", "gzip");
   server.send_P(200, "text/html; charset=utf-8", (PGM_P)INDEX_HTML_GZ, INDEX_HTML_GZ_LEN);
 }
 
-// Live mirror: the browser receives the same 1024-byte buffer the OLED shows.
 void handleFrame() {
   server.sendHeader("Cache-Control", "no-store");
   server.send_P(200, "application/octet-stream", (PGM_P)display.getBuffer(), SCREEN_W * SCREEN_H / 8);
@@ -1368,7 +1292,7 @@ void handleWifi() {
   if (s.length() == 0) { sendError(400, "Enter the network name."); return; }
   saveWifi(s, p);
   sendOk("ok wifi, restarting");
-  restartAt = millis() + 1200;    // let the reply reach the browser first
+  restartAt = millis() + 1200;   // let the reply reach the browser first
 }
 
 void handleNotFound() {
@@ -1393,7 +1317,7 @@ void startWebServer() {
   LOGLN("Web server running.");
 }
 
-/* ============================ SERIAL CONSOLE ================================ */
+// ---- Serial console ----
 void pollSerial() {
 #if SERIAL_SAFE
   static char line[96];
@@ -1417,7 +1341,7 @@ void pollSerial() {
 #endif
 }
 
-/* ============================ FRAME ========================================= */
+// ---- Frame ----
 static const uint32_t SHOJI_CLOSE_MS = 200, SHOJI_HOLD_MS = 70, SHOJI_OPEN_MS = 220;
 
 float easeInOut(float u) { u = u < 0 ? 0 : (u > 1 ? 1 : u); return u * u * (3 - 2 * u); }
@@ -1462,8 +1386,7 @@ void renderFrame(uint32_t now) {
   }
 }
 
-/* ============================ SETUP / LOOP ================================== */
-// Joining Wi-Fi takes a few seconds; keep the eyes alive meanwhile.
+// ---- Setup / loop ----
 bool joinWifi(uint32_t timeoutMs) {
   if (wifiSsid.length() == 0 || wifiSsid == "YOUR_WIFI_NAME") {
     LOGLN("No Wi-Fi credentials set (see secrets.example.h).");
@@ -1471,7 +1394,7 @@ bool joinWifi(uint32_t timeoutMs) {
   }
   LOG("Connecting to \"%s\"\n", wifiSsid.c_str());
   WiFi.persistent(false);
-  WiFi.setHostname(MDNS_NAME);          // core 3.x: must come before WiFi.mode()
+  WiFi.setHostname(MDNS_NAME);   // must come before WiFi.mode() on core 3.x
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
   WiFi.disconnect(true);
@@ -1479,7 +1402,7 @@ bool joinWifi(uint32_t timeoutMs) {
   WiFi.begin(wifiSsid.c_str(), wifiPass.c_str());
 
   const uint32_t t0 = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - t0 < timeoutMs) {
+  while (WiFi.status() != WL_CONNECTED && millis() - t0 < timeoutMs) {   // eyes keep moving meanwhile
     const uint32_t now = millis();
     char c[24];
     snprintf(c, sizeof(c), "joining wi-fi%.*s", (int)((now - t0) / 400 % 4), "...");
@@ -1505,35 +1428,35 @@ void setup() {
 
   pinMode(PIN_TOUCH, INPUT);
   pinMode(PIN_BUZZER, OUTPUT);
-  loadConfig();                           // settings decide whether we beep
-  beepBlocking(1500, 80);                 // 1 beep = alive
+  loadConfig();
+  beepBlocking(1500, 80);                 // 1 beep: alive
 
   haveDisplay = startDisplay();
-  display.allocBuffer();                  // draw even without a panel (web mirror)
+  display.allocBuffer();
   display.setTextColor(SSD1306_WHITE);
   if (haveDisplay) {
-    beepBlocking(1900, 80);               // 2 beeps = screen OK
+    beepBlocking(1900, 80);               // 2nd beep: OLED found
     display.clearDisplay();
     centerText("Hello, " OWNER_NAME, 26, 1);
     display.display();
     delay(700);
   } else {
     LOGLN("No OLED. Continuing without it - Wi-Fi and web page still work.");
-    beepBlocking(400, 400);               // long low beep = no screen
+    beepBlocking(400, 400);               // long low beep: no OLED
   }
 
   dataLock = xSemaphoreCreateMutex();
   renderer.setGeometry(eye::mochiGeometry());
-  engine.begin((uint32_t)random(1, 0x7FFFFFFF), millis());  // hardware RNG on ESP32
+  engine.begin((uint32_t)random(1, 0x7FFFFFFF), millis());
   engine.blinkNow();
-  appMode = MODE_EYES;                    // eyes keep you company while Wi-Fi connects
+  appMode = MODE_EYES;
   lastInteraction = millis();
 
   if (!joinWifi(20000)) {
     startAP();
     setCaption("AP " AP_SSID " 192.168.4.1", 10000);
   } else {
-    beepBlocking(2400, 80);               // high beep = online
+    beepBlocking(2400, 80);               // high beep: online
     setCaption(WiFi.localIP().toString().c_str(), 8000);
   }
 
@@ -1541,8 +1464,6 @@ void setup() {
   if (MDNS.begin(MDNS_NAME)) MDNS.addService("http", "tcp", 80);
   startWebServer();
 
-  // 12 KB stack: enough for a TLS handshake plus JSON parsing; the actual
-  // headroom is reported as sys.fetchStackFree in /api/state.
   xTaskCreate(fetchTask, "fetch", 12288, nullptr, 1, &fetchTaskHandle);
   requestFetch(true);
 
@@ -1559,7 +1480,6 @@ void loop() {
   serviceIdle(now);
   if (demoOn) runDemo(now);
 
-  // Notes page: flip long notes every few seconds.
   if (appMode == MODE_CLOCK && screen == SCR_NOTES && now - lastNoteFlip > NOTE_PAGE_MS) {
     uint16_t pages = (noteLines.size() + 5) / 6;
     if (pages > 1) { notePage = (notePage + 1) % pages; redrawNow = true; }
@@ -1573,7 +1493,6 @@ void loop() {
     WiFi.reconnect();
   }
 
-  // heartbeat over serial so you can tell it is alive with a dead screen
   static uint32_t lastBeat = 0;
   if (now - lastBeat > 10000) {
     lastBeat = now;
@@ -1584,5 +1503,5 @@ void loop() {
   if (restartAt && (int32_t)(now - restartAt) >= 0) ESP.restart();
 
   if (frameDue(now)) renderFrame(now);
-  else delay(1);   // yield the core to the fetch task and Wi-Fi
+  else delay(1);   // yield to fetchTask and Wi-Fi
 }
